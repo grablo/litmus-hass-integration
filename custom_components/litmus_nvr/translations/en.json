@@ -4,12 +4,18 @@
       "user": {
         "title": "Litmus NVR",
         "description": "Enter the address of the computer running Litmus NVR.",
-        "data": { "host": "Host", "port": "Port" }
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
       },
       "credentials": {
         "title": "Sign in to Litmus NVR",
         "description": "Use the account you sign in with at http://{host}.",
-        "data": { "username": "Username", "password": "Password" }
+        "data": {
+          "username": "Username",
+          "password": "Password"
+        }
       }
     },
     "error": {
@@ -17,24 +23,42 @@
       "invalid_auth": "Invalid authentication",
       "too_many_attempts": "Too many attempts. Try again later.",
       "not_litmus": "This is not a Litmus NVR.",
-      "update_required": "Update Litmus NVR to use this integration."
+      "update_required": "Update Litmus NVR to use this integration.",
+      "not_set_up": "Finish setting up Litmus NVR on the device first.",
+      "token_limit": "Too many connections. Disconnect an unused one in Litmus NVR under Settings › Integrations.",
+      "unknown": "Unexpected error"
     },
     "abort": {
       "already_configured": "Device is already configured",
-      "reauth_successful": "Re-authentication was successful"
+      "reauth_successful": "Re-authentication was successful",
+      "unique_id_mismatch": "This address now belongs to a different Litmus NVR."
     }
   },
   "entity": {
     "binary_sensor": {
-      "person": { "name": "Person" },
-      "vehicle": { "name": "Vehicle" },
-      "animal": { "name": "Animal" },
-      "sound": { "name": "Sound" },
-      "online": { "name": "Connected" }
+      "person": {
+        "name": "Person"
+      },
+      "vehicle": {
+        "name": "Vehicle"
+      },
+      "animal": {
+        "name": "Animal"
+      },
+      "sound": {
+        "name": "Sound"
+      },
+      "online": {
+        "name": "Connected"
+      }
     },
     "sensor": {
-      "recognized_face": { "name": "Recognized face" },
-      "recognized_plate": { "name": "Recognized plate" }
+      "recognized_face": {
+        "name": "Recognized face"
+      },
+      "recognized_plate": {
+        "name": "Recognized plate"
+      }
     },
     "event": {
       "alert": {
@@ -62,10 +86,14 @@
       }
     },
     "image": {
-      "last_alert": { "name": "Last alert" }
+      "last_alert": {
+        "name": "Last alert"
+      }
     },
     "update": {
-      "software": { "name": "Software" }
+      "software": {
+        "name": "Software"
+      }
     }
   }
 }

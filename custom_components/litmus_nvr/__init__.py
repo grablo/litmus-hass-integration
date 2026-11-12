@@ -9,10 +9,11 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import LitmusAuthError, LitmusClient, LitmusConnectionError
-from .const import CONF_TOKEN, DOMAIN
+from .const import CONF_TOKEN, DOMAIN, MANUFACTURER, NAME
 from .hub import LitmusHub
 from .views import LitmusNotificationView
 
@@ -39,6 +40,22 @@ async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry) -> bo
         raise ConfigEntryNotReady(f"Litmus NVR is not reachable: {err}") from err
     entry.runtime_data = hub
 
+    dev_reg = dr.async_get(hass)
+    # The NVR device first — camera devices link to it by device id (via_device_id), like reolink creates its host device first.
+    dev_reg.async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, hub.device_id)},
+        name=hub.device.get("name") or NAME,
+        manufacturer=MANUFACTURER,
+        model=NAME,
+        sw_version=hub.device.get("version"),
+    )
+    # Cameras removed in Litmus leave their devices behind otherwise (Frigate removes devices of cameras no longer in the config).
+    keep = {(DOMAIN, hub.device_id)} | {(DOMAIN, f"{hub.device_id}:{cam.get('id')}") for cam in hub.cameras}
+    for device in dr.async_entries_for_config_entry(dev_reg, entry.entry_id):
+        if not device.identifiers & keep:
+            dev_reg.async_update_device(device.id, remove_config_entry_id=entry.entry_id)
+
     domain_data = hass.data.setdefault(DOMAIN, {})
     if not domain_data.get("view_registered"):
         hass.http.register_view(LitmusNotificationView(hass))
@@ -46,6 +63,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry) -> bo
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """The integration was deleted — revoke its token on the NVR so it disappears from Litmus › Integrations
+    and re-adding does not pile tokens up to the NVR's limit. Best effort: the NVR may be off."""
+    client = LitmusClient(async_get_clientsession(hass), entry.data[CONF_HOST], entry.data[CONF_PORT], entry.data.get(CONF_TOKEN))
+    await client.delete_own_token()
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: LitmusConfigEntry) -> bool:

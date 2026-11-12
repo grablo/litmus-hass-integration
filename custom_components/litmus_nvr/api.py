@@ -4,8 +4,12 @@ from __future__ import annotations
 
 import asyncio
 from typing import Any
+from urllib.parse import quote
 
 import aiohttp
+
+# Errors that can surface while reading or decoding a response body (not only while sending the request).
+_BODY_ERRORS = (aiohttp.ClientError, asyncio.TimeoutError, ValueError, KeyError, TypeError)
 
 
 class LitmusError(Exception):
@@ -17,11 +21,24 @@ class LitmusAuthError(LitmusError):
 
 
 class LitmusConnectionError(LitmusError):
-    """NVR unreachable or returned a server error."""
+    """NVR unreachable, returned a server error or an unreadable body."""
 
 
 class LitmusThrottledError(LitmusError):
     """Too many login attempts."""
+
+
+class LitmusNotSetUpError(LitmusError):
+    """The NVR has no local account yet (HTTP 409)."""
+
+
+class LitmusTokenLimitError(LitmusError):
+    """The NVR could not issue another integration token (HTTP 500 TOKEN_FAILED — limit of 20 reached)."""
+
+
+def _seg(value: str) -> str:
+    """One URL path segment."""
+    return quote(str(value), safe="")
 
 
 class LitmusClient:
@@ -63,26 +80,51 @@ class LitmusClient:
         async with resp:
             if resp.status >= 400:
                 raise LitmusConnectionError(f"HTTP {resp.status}")
-            return await resp.json(content_type=None)
+            try:
+                return await resp.json(content_type=None)
+            except _BODY_ERRORS as err:
+                raise LitmusConnectionError(f"bad response: {err}") from err
 
     async def info(self) -> dict[str, Any]:
-        return await self._json("GET", "info")
+        data = await self._json("GET", "info")
+        if not isinstance(data, dict):
+            raise LitmusConnectionError("unexpected response")
+        return data
 
     async def create_token(self, username: str, password: str, name: str = "Home Assistant") -> str:
         resp = await self._request("POST", "tokens", json={"username": username, "password": password, "name": name})
         async with resp:
             if resp.status in (401, 403):
                 raise LitmusAuthError("bad credentials")
+            if resp.status == 409:
+                raise LitmusNotSetUpError("not set up")
+            if resp.status == 500:
+                raise LitmusTokenLimitError("token limit")
             if resp.status >= 400:
                 raise LitmusConnectionError(f"HTTP {resp.status}")
-            data = await resp.json(content_type=None)
-        return str(data["token"])
+            try:
+                data = await resp.json(content_type=None)
+                return str(data["token"])
+            except _BODY_ERRORS as err:
+                raise LitmusConnectionError(f"bad response: {err}") from err
+
+    async def delete_own_token(self) -> None:
+        """Revoke the token this client uses (after reauth, so old tokens do not pile up)."""
+        try:
+            resp = await self._request("DELETE", "tokens/self")
+            resp.release()
+        except LitmusError:
+            pass
 
     async def state(self) -> dict[str, Any]:
-        return await self._json("GET", "state")
+        data = await self._json("GET", "state")
+        if not isinstance(data, dict):
+            raise LitmusConnectionError("unexpected response")
+        return data
 
     async def update_info(self) -> dict[str, Any]:
-        return await self._json("GET", "update")
+        data = await self._json("GET", "update")
+        return data if isinstance(data, dict) else {}
 
     async def snapshot(self, camera_id: str, width: int | None = None, height: int | None = None) -> bytes | None:
         params = {}
@@ -90,48 +132,64 @@ class LitmusClient:
             params["w"] = str(width)
         if height:
             params["h"] = str(height)
-        resp = await self._request("GET", f"cameras/{camera_id}/snapshot.jpg", params=params)
+        resp = await self._request("GET", f"cameras/{_seg(camera_id)}/snapshot.jpg", params=params)
         async with resp:
             if resp.status != 200:
                 return None
-            return await resp.read()
+            try:
+                return await resp.read()
+            except _BODY_ERRORS as err:
+                raise LitmusConnectionError(str(err)) from err
 
-    async def event_snapshot(self, path: str) -> tuple[int, bytes]:
-        """path = 'events/<id>/snapshot.jpg?exp=..&sig=..' as sent by the NVR."""
+    async def event_snapshot(self, path: str, *, with_token: bool = False) -> tuple[int, bytes]:
+        """path = 'events/<id>/snapshot.jpg?exp=..&sig=..' as sent by the NVR.
+
+        The notification proxy forwards it without our token (the signature is the credential);
+        the image entity sends the token as well so the picture still loads after the 7-day signature expires.
+        """
         try:
-            resp = await self._session.get(f"{self._base}/{path}", timeout=aiohttp.ClientTimeout(total=10))
+            resp = await self._session.get(
+                f"{self._base}/{path}",
+                headers=self._headers() if with_token else None,
+                timeout=aiohttp.ClientTimeout(total=10),
+            )
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
             raise LitmusConnectionError(str(err)) from err
         async with resp:
-            return resp.status, await resp.read()
+            try:
+                return resp.status, await resp.read()
+            except _BODY_ERRORS as err:
+                raise LitmusConnectionError(str(err)) from err
 
-    async def webrtc_offer(self, camera_id: str, offer_sdp: str, session_id: str) -> str:
-        data = await self._json(
-            "POST",
-            f"cameras/{camera_id}/webrtc",
-            json={"sdp": offer_sdp, "session_id": session_id},
-            timeout=12,
-        )
-        return str(data["sdp"])
+    async def webrtc_offer(
+        self, camera_id: str, offer_sdp: str, session_id: str, ice_servers: list[dict[str, Any]] | None = None
+    ) -> str:
+        body: dict[str, Any] = {"sdp": offer_sdp, "session_id": session_id}
+        if ice_servers is not None:
+            body["ice_servers"] = ice_servers
+        data = await self._json("POST", f"cameras/{_seg(camera_id)}/webrtc", json=body, timeout=12)
+        try:
+            return str(data["sdp"])
+        except _BODY_ERRORS as err:
+            raise LitmusConnectionError(f"bad answer: {err}") from err
 
     async def webrtc_candidate(self, session_id: str, candidate: str, sdp_mid: str | None) -> None:
         resp = await self._request(
-            "POST", f"webrtc/{session_id}/candidate", json={"candidate": candidate, "sdpMid": sdp_mid or ""}
+            "POST", f"webrtc/{_seg(session_id)}/candidate", json={"candidate": candidate, "sdpMid": sdp_mid or ""}
         )
         resp.release()
 
     async def webrtc_close(self, session_id: str) -> None:
         try:
-            resp = await self._request("DELETE", f"webrtc/{session_id}")
+            resp = await self._request("DELETE", f"webrtc/{_seg(session_id)}")
             resp.release()
         except LitmusError:
             pass
 
     async def ws_connect(self) -> aiohttp.ClientWebSocketResponse:
         try:
-            return await self._session.ws_connect(
-                f"{self._base}/ws", headers=self._headers(), heartbeat=30
-            )
+            async with asyncio.timeout(10):
+                return await self._session.ws_connect(f"{self._base}/ws", headers=self._headers(), heartbeat=30)
         except aiohttp.WSServerHandshakeError as err:
             if err.status == 401:
                 raise LitmusAuthError("unauthorized") from err

@@ -81,10 +81,17 @@ class LitmusHub:
         while True:
             try:
                 self._ws = await self.client.ws_connect()
-                backoff = 1
                 async for msg in self._ws:
                     if msg.type == aiohttp.WSMsgType.TEXT:
-                        self._handle(msg.json())
+                        # Back off again only once the NVR actually talks — a socket that opens and drops at once
+                        # would otherwise be retried every second.
+                        backoff = 1
+                        try:
+                            data = msg.json()
+                            if isinstance(data, dict):
+                                self._handle(data)
+                        except Exception:  # noqa: BLE001 — one bad message must not drop the connection
+                            _LOGGER.debug("Ignored a malformed message from Litmus NVR", exc_info=True)
                     elif msg.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
                         break
             except LitmusAuthError:

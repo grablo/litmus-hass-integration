@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import timedelta
 
 from homeassistant.components.update import UpdateEntity
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import LitmusConfigEntry
@@ -30,6 +30,16 @@ class LitmusUpdate(LitmusEntity, UpdateEntity):
     def __init__(self, hub: LitmusHub) -> None:
         super().__init__(hub)
         self._attr_unique_id = unique_id(hub, "update", "controller")
+
+    @callback
+    def _state_changed(self) -> None:
+        # The NVR reports its version in every full state (sent again after it restarts) — after an update,
+        # show the new installed version now instead of at the next 6-hour poll.
+        version = self.hub.device.get("version")
+        if version and version != self._attr_installed_version:
+            self.async_schedule_update_ha_state(force_refresh=True)
+            return
+        super()._state_changed()
 
     async def async_update(self) -> None:
         try:

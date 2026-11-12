@@ -36,6 +36,9 @@ blueprint:
             - vehicle_specific
             - animal_any
             - animal_specific
+            - text_person
+            - text_vehicle
+            - text_animal
             - sound
 
 mode: parallel
@@ -52,6 +55,9 @@ variables:
 
 conditions:
   - "{{ trigger.to_state.state not in ['unknown', 'unavailable'] }}"
+  # An event entity comes back from 'unavailable' with its last timestamp restored — that is not a new alert
+  # (HA core helpers/trigger/entity_trigger.py excludes STATE_UNAVAILABLE for the same reason).
+  - "{{ trigger.from_state is not none and trigger.from_state.state != 'unavailable' }}"
   - "{{ kinds | length == 0 or attrs.event_type in kinds }}"
 
 actions:

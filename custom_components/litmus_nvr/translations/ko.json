@@ -4,12 +4,18 @@
       "user": {
         "title": "Litmus NVR",
         "description": "Litmus NVR 이 실행 중인 컴퓨터의 주소를 입력하세요.",
-        "data": { "host": "호스트", "port": "포트" }
+        "data": {
+          "host": "호스트",
+          "port": "포트"
+        }
       },
       "credentials": {
         "title": "Litmus NVR 로그인",
         "description": "http://{host} 에서 로그인하는 계정을 입력하세요.",
-        "data": { "username": "사용자 이름", "password": "비밀번호" }
+        "data": {
+          "username": "사용자 이름",
+          "password": "비밀번호"
+        }
       }
     },
     "error": {
@@ -17,24 +23,42 @@
       "invalid_auth": "인증이 잘못되었습니다",
       "too_many_attempts": "시도 횟수가 너무 많습니다. 잠시 후 다시 시도해 주세요.",
       "not_litmus": "Litmus NVR 이 아닙니다.",
-      "update_required": "이 통합을 사용하려면 Litmus NVR 을 업데이트하세요."
+      "update_required": "이 통합을 사용하려면 Litmus NVR 을 업데이트하세요.",
+      "not_set_up": "먼저 디바이스에서 Litmus NVR 설정을 마치세요.",
+      "token_limit": "연결이 너무 많습니다. Litmus NVR 설정 › 연동에서 쓰지 않는 연결을 해제하세요.",
+      "unknown": "예기치 않은 오류"
     },
     "abort": {
       "already_configured": "기기가 이미 구성되었습니다",
-      "reauth_successful": "재인증에 성공했습니다"
+      "reauth_successful": "재인증에 성공했습니다",
+      "unique_id_mismatch": "이 주소는 이제 다른 Litmus NVR입니다."
     }
   },
   "entity": {
     "binary_sensor": {
-      "person": { "name": "사람" },
-      "vehicle": { "name": "차량" },
-      "animal": { "name": "동물" },
-      "sound": { "name": "소리" },
-      "online": { "name": "연결됨" }
+      "person": {
+        "name": "사람"
+      },
+      "vehicle": {
+        "name": "차량"
+      },
+      "animal": {
+        "name": "동물"
+      },
+      "sound": {
+        "name": "소리"
+      },
+      "online": {
+        "name": "연결됨"
+      }
     },
     "sensor": {
-      "recognized_face": { "name": "인식된 얼굴" },
-      "recognized_plate": { "name": "인식된 번호판" }
+      "recognized_face": {
+        "name": "인식된 얼굴"
+      },
+      "recognized_plate": {
+        "name": "인식된 번호판"
+      }
     },
     "event": {
       "alert": {
@@ -62,10 +86,14 @@
       }
     },
     "image": {
-      "last_alert": { "name": "마지막 알림" }
+      "last_alert": {
+        "name": "마지막 알림"
+      }
     },
     "update": {
-      "software": { "name": "소프트웨어" }
+      "software": {
+        "name": "소프트웨어"
+      }
     }
   }
 }

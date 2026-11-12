@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from homeassistant.core import callback
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity import Entity
@@ -69,10 +70,20 @@ class LitmusCameraEntity(LitmusEntity):
 
     @property
     def device_info(self) -> DeviceInfo:
-        return DeviceInfo(
+        info = DeviceInfo(
             identifiers={(DOMAIN, f"{self.hub.device_id}:{self.camera_id}")},
-            via_device=(DOMAIN, self.hub.device_id),
             name=self.cam.get("name") or self.camera_id,
             manufacturer=MANUFACTURER,
             model=f"{NAME} camera",
         )
+        # HA 2026.x deprecates `via_device` (removed in 2027.8) in favour of `via_device_id`, resolved the way core
+        # integrations do (reolink entity.py: dr.async_get_device_id_by_identifier). Older HA keeps `via_device`.
+        lookup = getattr(dr, "async_get_device_id_by_identifier", None)
+        if lookup is not None:
+            try:
+                info["via_device_id"] = lookup(self.hass, (DOMAIN, self.hub.device_id), config_entry_id=self.hub.entry.entry_id)
+            except ValueError:
+                pass   # NVR device not registered (should not happen: __init__ creates it first)
+        else:
+            info["via_device"] = (DOMAIN, self.hub.device_id)
+        return info

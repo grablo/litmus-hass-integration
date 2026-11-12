@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+import logging
 from typing import Any
 
 import voluptuous as vol
@@ -11,8 +12,17 @@ from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import LitmusAuthError, LitmusClient, LitmusConnectionError, LitmusThrottledError
+from .api import (
+    LitmusAuthError,
+    LitmusClient,
+    LitmusConnectionError,
+    LitmusNotSetUpError,
+    LitmusThrottledError,
+    LitmusTokenLimitError,
+)
 from .const import API_VERSION, CONF_DEVICE_ID, CONF_TOKEN, DEFAULT_PORT, DOMAIN, NAME
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -38,10 +48,13 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
                 info = await self._probe(host, port)
             except LitmusConnectionError:
                 errors["base"] = "cannot_connect"
+            except Exception:  # noqa: BLE001 — HA scaffold pattern: never crash the flow
+                _LOGGER.exception("Unexpected error while probing Litmus NVR")
+                errors["base"] = "unknown"
             else:
                 if info.get("product") != "litmus":
                     errors["base"] = "not_litmus"
-                elif int(info.get("api", 0)) != API_VERSION:
+                elif str(info.get("api", "0")) != str(API_VERSION):
                     errors["base"] = "update_required"
                 else:
                     self._device_id = str(info["id"])
@@ -62,17 +75,31 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             client = LitmusClient(async_get_clientsession(self.hass), self._host, self._port)
             try:
+                if self.source == "reauth":
+                    # The address may now point at a different Litmus device — do not store its token under this entry.
+                    info = await client.info()
+                    await self.async_set_unique_id(str(info.get("id")))
+                    self._abort_if_unique_id_mismatch()
                 token = await client.create_token(user_input[CONF_USERNAME], user_input[CONF_PASSWORD], "Home Assistant")
             except LitmusAuthError:
                 errors["base"] = "invalid_auth"
             except LitmusThrottledError:
                 errors["base"] = "too_many_attempts"
+            except LitmusNotSetUpError:
+                errors["base"] = "not_set_up"
+            except LitmusTokenLimitError:
+                errors["base"] = "token_limit"
             except LitmusConnectionError:
                 errors["base"] = "cannot_connect"
             else:
                 data = {CONF_HOST: self._host, CONF_PORT: self._port, CONF_TOKEN: token, CONF_DEVICE_ID: self._device_id}
                 if self.source == "reauth":
-                    return self.async_update_reload_and_abort(self._get_reauth_entry(), data_updates=data)
+                    entry = self._get_reauth_entry()
+                    old = entry.data.get(CONF_TOKEN)
+                    if old and old != token:
+                        # Revoke the old token so tokens do not pile up to the NVR's limit (it is usually already invalid).
+                        await LitmusClient(async_get_clientsession(self.hass), self._host, self._port, old).delete_own_token()
+                    return self.async_update_reload_and_abort(entry, data_updates=data)
                 return self.async_create_entry(title=NAME, data=data)
         schema = vol.Schema({vol.Required(CONF_USERNAME): str, vol.Required(CONF_PASSWORD): str})
         return self.async_show_form(
