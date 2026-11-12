@@ -1,0 +1,71 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Litmus NVR",
+        "description": "Enter the address of the computer running Litmus NVR.",
+        "data": { "host": "Host", "port": "Port" }
+      },
+      "credentials": {
+        "title": "Sign in to Litmus NVR",
+        "description": "Use the account you sign in with at http://{host}.",
+        "data": { "username": "Username", "password": "Password" }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid authentication",
+      "too_many_attempts": "Too many attempts. Try again later.",
+      "not_litmus": "This is not a Litmus NVR.",
+      "update_required": "Update Litmus NVR to use this integration."
+    },
+    "abort": {
+      "already_configured": "Device is already configured",
+      "reauth_successful": "Re-authentication was successful"
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "person": { "name": "Person" },
+      "vehicle": { "name": "Vehicle" },
+      "animal": { "name": "Animal" },
+      "sound": { "name": "Sound" },
+      "online": { "name": "Connected" }
+    },
+    "sensor": {
+      "recognized_face": { "name": "Recognized face" },
+      "recognized_plate": { "name": "Recognized plate" }
+    },
+    "event": {
+      "alert": {
+        "name": "Alert",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "person": "Person",
+              "face_known": "Known face",
+              "face_unknown": "Unknown face",
+              "face_specific": "Specific face",
+              "vehicle_any": "Vehicle",
+              "vehicle_known": "Known vehicle",
+              "vehicle_unknown": "Unknown vehicle",
+              "vehicle_specific": "Specific vehicle",
+              "animal_any": "Animal",
+              "animal_specific": "Specific animal",
+              "text_person": "Described person",
+              "text_vehicle": "Described vehicle",
+              "text_animal": "Described animal",
+              "sound": "Sound"
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "last_alert": { "name": "Last alert" }
+    },
+    "update": {
+      "software": { "name": "Software" }
+    }
+  }
+}

@@ -1,0 +1,68 @@
+blueprint:
+  name: Litmus NVR alert notification
+  description: >-
+    Send a phone notification with the snapshot when a Litmus NVR alert goes off.
+    The picture opens without a Home Assistant login (signed link, valid for 7 days).
+  domain: automation
+  source_url: https://github.com/grablo/litmus-hass-integration/blob/main/blueprints/automation/litmus_nvr/notify.yaml
+  input:
+    alert_event:
+      name: Alert
+      selector:
+        entity:
+          filter:
+            - integration: litmus_nvr
+              domain: event
+    notify_device:
+      name: Phone
+      selector:
+        device:
+          filter:
+            - integration: mobile_app
+    kinds:
+      name: Alert kinds (empty = all)
+      default: []
+      selector:
+        select:
+          multiple: true
+          options:
+            - person
+            - face_known
+            - face_unknown
+            - face_specific
+            - vehicle_any
+            - vehicle_known
+            - vehicle_unknown
+            - vehicle_specific
+            - animal_any
+            - animal_specific
+            - sound
+
+mode: parallel
+max: 10
+
+triggers:
+  - trigger: state
+    entity_id: !input alert_event
+
+variables:
+  kinds: !input kinds
+  notify_device: !input notify_device
+  attrs: "{{ trigger.to_state.attributes }}"
+
+conditions:
+  - "{{ trigger.to_state.state not in ['unknown', 'unavailable'] }}"
+  - "{{ kinds | length == 0 or attrs.event_type in kinds }}"
+
+actions:
+  - action: "notify.mobile_app_{{ device_attr(notify_device, 'name') | slugify }}"
+    data:
+      title: "{{ attrs.title or state_attr(trigger.entity_id, 'friendly_name') }}"
+      message: "{{ attrs.message or attrs.event_type }}"
+      data:
+        image: "{{ attrs.snapshot }}"
+        attachment:
+          url: "{{ attrs.snapshot }}"
+          content-type: jpeg
+        tag: "{{ attrs.event_id }}"
+        group: "litmus-nvr"
