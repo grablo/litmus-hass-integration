@@ -24,6 +24,10 @@
           "host": "Host",
           "port": "Port"
         }
+      },
+      "zeroconf_confirm": {
+        "title": "Litmus NVR found",
+        "description": "Add the Litmus NVR at {host}?"
       }
     },
     "error": {
@@ -42,7 +46,8 @@
       "unique_id_mismatch": "This address now belongs to a different Litmus NVR.",
       "wrong_device": "This address is a different Litmus NVR.",
       "reconfigure_successful": "Address updated."
-    }
+    },
+    "flow_title": "{name}"
   },
   "entity": {
     "binary_sensor": {

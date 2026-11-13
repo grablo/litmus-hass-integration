@@ -152,9 +152,13 @@ class LitmusClient:
             raise LitmusConnectionError(str(err)) from err
         return resp
 
-    async def cards(self, kind: str, days: int = 30, limit: int = 100) -> list[dict[str, Any]]:
-        """Litmus cards (same person / vehicle / animal grouped), newest first: [{id, name?, plate?, species?, count, first, last, thumb}]."""
-        data = await self._json("GET", "cards", params={"kind": kind, "days": str(days), "limit": str(limit)})
+    async def cards(self, kind: str, days: int = 30, limit: int = 100, from_ms: int | None = None, to_ms: int | None = None) -> list[dict[str, Any]]:
+        """Litmus cards (same person / vehicle / animal grouped), newest first: [{id, name?, plate?, species?, count, first, last, thumb}].
+        from_ms/to_ms (epoch ms) narrow it to a window — the Media panel's day folders."""
+        params = {"kind": kind, "days": str(days), "limit": str(limit)}
+        if from_ms is not None and to_ms is not None:
+            params.update({"from": str(from_ms), "to": str(to_ms)})
+        data = await self._json("GET", "cards", params=params)
         items = data.get("cards") if isinstance(data, dict) else None
         return [i for i in items if isinstance(i, dict) and i.get("id")] if isinstance(items, list) else []
 

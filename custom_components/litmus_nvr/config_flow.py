@@ -12,6 +12,7 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 
 from .api import (
     LitmusAuthError,
@@ -91,6 +92,28 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
             }
         )
         return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+
+    async def async_step_zeroconf(self, discovery_info: ZeroconfServiceInfo) -> ConfigFlowResult:
+        """Litmus NVR announced itself on the network (_litmus-nvr._tcp, only when Home Assistant is turned on in Litmus).
+        A device already added just gets its address refreshed (DHCP changes) — UniFi Protect / Reolink do the same."""
+        props = discovery_info.properties or {}
+        device_id = str(props.get("id") or "")
+        if not device_id:
+            return self.async_abort(reason="not_litmus")
+        host = str(discovery_info.host)
+        port = int(discovery_info.port or DEFAULT_PORT)
+        await self.async_set_unique_id(device_id)
+        self._abort_if_unique_id_configured(updates={CONF_HOST: host, CONF_PORT: port})
+        self._host, self._port, self._device_id = host, port, device_id
+        self.context["title_placeholders"] = {"name": f"Litmus NVR ({host})"}
+        return await self.async_step_zeroconf_confirm()
+
+    async def async_step_zeroconf_confirm(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        if user_input is not None:
+            return await self.async_step_credentials()
+        return self.async_show_form(
+            step_id="zeroconf_confirm", description_placeholders={"host": f"{self._host}:{self._port}"}
+        )
 
     async def async_step_credentials(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}

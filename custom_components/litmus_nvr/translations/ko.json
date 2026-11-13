@@ -24,6 +24,10 @@
           "host": "호스트",
           "port": "포트"
         }
+      },
+      "zeroconf_confirm": {
+        "title": "Litmus NVR을 찾았습니다",
+        "description": "{host}의 Litmus NVR을 추가할까요?"
       }
     },
     "error": {
@@ -42,7 +46,8 @@
       "unique_id_mismatch": "이 주소는 이제 다른 Litmus NVR입니다.",
       "wrong_device": "다른 Litmus NVR의 주소입니다.",
       "reconfigure_successful": "주소를 바꿨습니다."
-    }
+    },
+    "flow_title": "{name}"
   },
   "entity": {
     "binary_sensor": {

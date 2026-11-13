@@ -29,6 +29,11 @@ from .const import DOMAIN, NAME
 
 DAYS = 30          # how far back the camera folder looks for days with recordings
 KINDS = ("person", "face", "vehicle", "animal")
+FOLDER_TITLES = {
+    "ko": {"frequent": "자주 보인", "plate": "번호 확인", "today": "오늘", "yesterday": "어제"},
+    "en": {"frequent": "Seen often", "plate": "Plate read", "today": "Today", "yesterday": "Yesterday"},
+}
+DAY_FOLDERS = 7     # day folders under a kind (older days: the Litmus app)
 KIND_TITLES = {
     "ko": {"person": "사람", "face": "얼굴", "vehicle": "차량", "animal": "동물"},
     "en": {"person": "People", "face": "Faces", "vehicle": "Vehicles", "animal": "Animals"},
@@ -89,7 +94,9 @@ class LitmusMediaSource(MediaSource):
         if len(parts) == 4 and parts[1] == "day":
             return await self._day_node(parts[0], parts[2], parts[3])
         if len(parts) == 3 and parts[1] == "kind" and parts[2] in KINDS:
-            return await self._kind_node(parts[0], parts[2])
+            return self._kind_folders(parts[0], parts[2])
+        if len(parts) == 4 and parts[1] == "kind" and parts[2] in KINDS:
+            return await self._kind_node(parts[0], parts[2], parts[3])
         if len(parts) == 4 and parts[1] == "card" and parts[2] in KINDS and parts[3].isdigit():
             return await self._card_node(parts[0], parts[2], int(parts[3]))
         raise Unresolvable("Unknown media item")
@@ -125,13 +132,43 @@ class LitmusMediaSource(MediaSource):
     def _thumb(self, entry_id: str, query: str | None) -> str | None:
         return f"/api/litmus_nvr/{entry_id}/thumb.jpg?{query}" if query else None
 
-    async def _kind_node(self, entry_id: str, kind: str) -> BrowseMediaSource:
+    def _lang(self) -> str:
+        return "ko" if (self.hass.config.language or "").startswith("ko") else "en"
+
+    def _kind_folders(self, entry_id: str, kind: str) -> BrowseMediaSource:
+        """A kind holds folders, not cards — a busy camera makes hundreds of cards a day (2026-11-13: 500+ vehicles in one day).
+        People/faces: 「Seen often」(2+ times, most first). Vehicles: 「Plate read」. Then one folder per day, newest first."""
+        self._hub(entry_id)
+        ft = FOLDER_TITLES[self._lang()]
+        children = []
+        if kind in ("person", "face"):
+            children.append(self._folder(f"{entry_id}/kind/{kind}/frequent", ft["frequent"], None))
+        if kind == "vehicle":
+            children.append(self._folder(f"{entry_id}/kind/{kind}/plate", ft["plate"], None))
+        today = dt_util.now().date()
+        for i in range(DAY_FOLDERS):
+            day = today - timedelta(days=i)
+            title = ft["today"] if i == 0 else ft["yesterday"] if i == 1 else day.strftime("%m/%d")
+            children.append(self._folder(f"{entry_id}/kind/{kind}/{day.isoformat()}", title, None))
+        return self._folder(f"{entry_id}/kind/{kind}", KIND_TITLES[self._lang()][kind], children)
+
+    async def _kind_node(self, entry_id: str, kind: str, sub: str) -> BrowseMediaSource:
         hub = self._hub(entry_id)
         try:
-            cards = await hub.client.cards(kind, DAYS, 200)
+            if sub in ("frequent", "plate"):
+                cards = await hub.client.cards(kind, DAYS, 500)
+                if sub == "frequent":
+                    cards = sorted((c for c in cards if int(c.get("count") or 0) >= 2), key=lambda c: -int(c.get("count") or 0))[:200]
+                else:
+                    cards = [c for c in cards if c.get("plate")][:200]
+            else:
+                start = dt_util.start_of_local_day(datetime.fromisoformat(sub).date())
+                cards = await hub.client.cards(kind, DAYS, 200, _ms(start), _ms(start + timedelta(days=1)))
+        except ValueError as err:
+            raise Unresolvable("Bad folder") from err
         except LitmusError as err:
             raise Unresolvable(f"Litmus NVR is not reachable: {err}") from err
-        ko = (self.hass.config.language or "").startswith("ko")
+        ko = self._lang() == "ko"
         children = []
         for c in cards:
             last = dt_util.as_local(dt_util.utc_from_timestamp(int(c.get("last") or 0) / 1000))
@@ -151,8 +188,7 @@ class LitmusMediaSource(MediaSource):
                     thumbnail=self._thumb(entry_id, c.get("thumb")),
                 )
             )
-        titles = KIND_TITLES["ko" if ko else "en"]
-        node = self._folder(f"{entry_id}/kind/{kind}", titles[kind], children)
+        node = self._folder(f"{entry_id}/kind/{kind}/{sub}", KIND_TITLES[self._lang()][kind], children)
         node.children_media_class = MediaClass.DIRECTORY
         return node
 
