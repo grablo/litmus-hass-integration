@@ -32,6 +32,7 @@
     },
     "error": {
       "cannot_connect": "Bağlanma hatası",
+      "not_enabled": "Home Assistant, Litmus NVR'de kapalı. Ayarlar › Entegrasyonlar bölümünden açın.",
       "invalid_auth": "Geçersiz kimlik doğrulama",
       "too_many_attempts": "Çok fazla deneme yapıldı. Daha sonra tekrar deneyin.",
       "not_litmus": "Bu bir Litmus NVR değil.",

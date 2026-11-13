@@ -32,6 +32,7 @@
     },
     "error": {
       "cannot_connect": "Failed to connect",
+      "not_enabled": "Home Assistant is turned off in Litmus NVR. Turn it on in Settings › Integrations.",
       "invalid_auth": "Invalid authentication",
       "too_many_attempts": "Too many attempts. Try again later.",
       "not_litmus": "This is not a Litmus NVR.",

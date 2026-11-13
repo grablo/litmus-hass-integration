@@ -20,6 +20,8 @@ from .api import (
     LitmusConnectionError,
     LitmusNotSetUpError,
     LitmusThrottledError,
+    LitmusNotEnabledError,
+    LitmusUpdateRequiredError,
     LitmusTokenLimitError,
 )
 from .const import API_VERSION, CONF_DEVICE_ID, CONF_TOKEN, DEFAULT_PORT, DOMAIN, NAME
@@ -69,6 +71,10 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
             host, port = split_address(user_input[CONF_HOST], int(user_input[CONF_PORT]))
             try:
                 info = await self._probe(host, port)
+            except LitmusNotEnabledError:
+                errors["base"] = "not_enabled"
+            except LitmusUpdateRequiredError:
+                errors["base"] = "update_required"
             except LitmusConnectionError:
                 errors["base"] = "cannot_connect"
             except Exception:  # noqa: BLE001 — HA scaffold pattern: never crash the flow
@@ -168,6 +174,10 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
             host, port = split_address(user_input[CONF_HOST], int(user_input[CONF_PORT]))
             try:
                 info = await self._probe(host, port)
+            except LitmusNotEnabledError:
+                errors["base"] = "not_enabled"
+            except LitmusUpdateRequiredError:
+                errors["base"] = "update_required"
             except LitmusConnectionError:
                 errors["base"] = "cannot_connect"
             except Exception:  # noqa: BLE001

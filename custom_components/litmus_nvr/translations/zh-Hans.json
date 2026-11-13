@@ -32,6 +32,7 @@
     },
     "error": {
       "cannot_connect": "连接失败",
+      "not_enabled": "Litmus NVR 中的 Home Assistant 已关闭。请在“设置 › 集成”中开启。",
       "invalid_auth": "身份验证无效",
       "too_many_attempts": "尝试次数过多，请稍后重试。",
       "not_litmus": "这不是 Litmus NVR。",

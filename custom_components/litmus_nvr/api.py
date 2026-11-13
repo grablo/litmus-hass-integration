@@ -36,6 +36,18 @@ class LitmusNotSetUpError(LitmusError):
     """The NVR has no local account yet (HTTP 409)."""
 
 
+class LitmusNotEnabledError(LitmusConnectionError):
+    """A Litmus NVR answered, but Home Assistant is turned off in Litmus › Settings › Integrations (HTTP 404 NOT_ENABLED).
+
+    A kind of connection error so a configured entry keeps retrying until it is turned back on; the config flow catches it first
+    to tell the user where to turn it on.
+    """
+
+
+class LitmusUpdateRequiredError(LitmusConnectionError):
+    """A Litmus NVR older than 2.4.0 answered (no integration API yet). A connection error for a configured entry, like NotEnabled."""
+
+
 class LitmusTokenLimitError(LitmusError):
     """The NVR could not issue another integration token (HTTP 500 TOKEN_FAILED — limit of 20 reached)."""
 
@@ -83,6 +95,14 @@ class LitmusClient:
     async def _json(self, method: str, path: str, **kwargs: Any) -> Any:
         resp = await self._request(method, path, **kwargs)
         async with resp:
+            if resp.status == 404:
+                # The NVR keeps answering while the integration is off — it says so, so the user is told where to turn it on.
+                try:
+                    body = await resp.json(content_type=None)
+                except _BODY_ERRORS:
+                    body = None
+                if isinstance(body, dict) and body.get("code") == "NOT_ENABLED":
+                    raise LitmusNotEnabledError("integration turned off in Litmus")
             if resp.status >= 400:
                 raise LitmusConnectionError(f"HTTP {resp.status}")
             try:
@@ -91,10 +111,28 @@ class LitmusClient:
                 raise LitmusConnectionError(f"bad response: {err}") from err
 
     async def info(self) -> dict[str, Any]:
-        data = await self._json("GET", "info")
-        if not isinstance(data, dict):
-            raise LitmusConnectionError("unexpected response")
-        return data
+        """Unauthenticated identity of the NVR (2.4.0+).
+
+        Litmus NVR before 2.4.0 has no integration API: its local server answers this path with 401 {"code": "UNAUTHORIZED"}.
+        That is reported as LitmusUpdateRequiredError so the user is told to update rather than seeing an unexpected error.
+        """
+        try:
+            resp = await self._session.get(f"{self._base}/info", timeout=aiohttp.ClientTimeout(total=10))
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            raise LitmusConnectionError(str(err)) from err
+        async with resp:
+            try:
+                data = await resp.json(content_type=None)
+            except _BODY_ERRORS:
+                data = None
+            code = data.get("code") if isinstance(data, dict) else None
+            if resp.status == 401 and code == "UNAUTHORIZED":
+                raise LitmusUpdateRequiredError("Litmus NVR older than 2.4.0")
+            if resp.status == 404 and code == "NOT_ENABLED":
+                raise LitmusNotEnabledError("integration turned off in Litmus")
+            if resp.status >= 400 or not isinstance(data, dict):
+                raise LitmusConnectionError(f"HTTP {resp.status}")
+            return data
 
     async def create_token(self, username: str, password: str, name: str = "Home Assistant") -> str:
         resp = await self._request("POST", "tokens", json={"username": username, "password": password, "name": name})
