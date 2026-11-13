@@ -143,8 +143,13 @@ class LitmusHub:
         ]
         if self.device.get("name"):
             wanted.append((self.device_id, str(self.device.get("name"))))
+        # HA 2026.11 deprecates async_get_device (identifiers are unique per config entry now); look up within our entry.
+        by_identifier = getattr(reg, "async_get_device_by_identifier", None)
         for ident, name in wanted:
-            device = reg.async_get_device(identifiers={(DOMAIN, ident)})
+            if by_identifier is not None:
+                device = by_identifier((DOMAIN, ident), self.entry.entry_id)
+            else:  # pragma: no cover - HA before 2026.11
+                device = reg.async_get_device(identifiers={(DOMAIN, ident)})
             if device is not None and device.name != name:
                 reg.async_update_device(device.id, name=name)
 

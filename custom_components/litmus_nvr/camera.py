@@ -18,6 +18,10 @@ from homeassistant.components.camera import (
     WebRTCError,
     WebRTCSendMessage,
 )
+try:  # HA 2026.11+ — two-way audio (camera/entity.py CameraEntityCapabilities); older cores load without a talk button
+    from homeassistant.components.camera import CameraEntityCapabilities
+except ImportError:  # pragma: no cover - HA before 2026.11
+    CameraEntityCapabilities = None  # type: ignore[assignment,misc]
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from webrtc_models import RTCIceCandidateInit
@@ -78,6 +82,18 @@ class LitmusCamera(LitmusCameraEntity, Camera):
     @property
     def available(self) -> bool:
         return super().available and bool(self.cam.get("online"))
+
+    if CameraEntityCapabilities is not None:
+
+        @property
+        def camera_entity_capabilities(self) -> CameraEntityCapabilities:  # type: ignore[override]
+            """Two-way audio when the NVR has confirmed the camera's ONVIF backchannel (state `talk`).
+
+            HA shows the talk button only over WebRTC with the "Two-way audio" Labs preview on (camera_capabilities).
+            The frontend then opens a new WebRTC session whose audio is sendrecv with the microphone
+            (frontend ha-web-rtc-player.ts); the NVR answers that audio as receive and forwards it to the camera.
+            """
+            return CameraEntityCapabilities(two_way_audio=bool(self.cam.get("talk")))
 
     @property
     def extra_state_attributes(self) -> dict[str, object]:
