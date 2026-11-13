@@ -33,6 +33,7 @@
     "error": {
       "cannot_connect": "Kết nối thất bại",
       "not_enabled": "Home Assistant đang tắt trong Litmus NVR. Hãy bật trong Cài đặt › Tích hợp.",
+      "turn_on_or_update": "Bật Home Assistant trong Litmus NVR › Cài đặt › Tích hợp. Nếu không thấy, hãy cập nhật Litmus NVR.",
       "invalid_auth": "Xác thực không hợp lệ",
       "too_many_attempts": "Thử quá nhiều lần. Hãy thử lại sau.",
       "not_litmus": "Đây không phải là Litmus NVR.",

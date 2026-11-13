@@ -33,6 +33,7 @@
     "error": {
       "cannot_connect": "Gagal terhubung",
       "not_enabled": "Home Assistant dinonaktifkan di Litmus NVR. Aktifkan di Setelan › Integrasi.",
+      "turn_on_or_update": "Aktifkan Home Assistant di Litmus NVR › Setelan › Integrasi. Jika tidak ada, perbarui Litmus NVR.",
       "invalid_auth": "Autentikasi tidak valid",
       "too_many_attempts": "Terlalu banyak percobaan. Coba lagi nanti.",
       "not_litmus": "Ini bukan Litmus NVR.",

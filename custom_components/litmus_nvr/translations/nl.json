@@ -33,6 +33,7 @@
     "error": {
       "cannot_connect": "Kan geen verbinding maken",
       "not_enabled": "Home Assistant staat uit in Litmus NVR. Zet het aan via Instellingen › Integraties.",
+      "turn_on_or_update": "Zet Home Assistant aan in Litmus NVR › Instellingen › Integraties. Zie je het niet, werk Litmus NVR dan bij.",
       "invalid_auth": "Ongeldige authenticatie",
       "too_many_attempts": "Te veel pogingen. Probeer het later opnieuw.",
       "not_litmus": "Dit is geen Litmus NVR.",

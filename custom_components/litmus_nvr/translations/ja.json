@@ -33,6 +33,7 @@
     "error": {
       "cannot_connect": "接続に失敗しました",
       "not_enabled": "Litmus NVR で Home Assistant がオフになっています。設定 › 連携 でオンにしてください。",
+      "turn_on_or_update": "Litmus NVR の 設定 › 連携 で Home Assistant をオンにしてください。表示されない場合は Litmus NVR をアップデートしてください。",
       "invalid_auth": "無効な認証",
       "too_many_attempts": "試行回数が多すぎます。しばらくしてからもう一度お試しください。",
       "not_litmus": "Litmus NVR ではありません。",

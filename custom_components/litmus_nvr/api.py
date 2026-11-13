@@ -45,7 +45,8 @@ class LitmusNotEnabledError(LitmusConnectionError):
 
 
 class LitmusUpdateRequiredError(LitmusConnectionError):
-    """A Litmus NVR older than 2.4.0 answered (no integration API yet). A connection error for a configured entry, like NotEnabled."""
+    """A Litmus NVR without the integration API answered: older than 2.4.0, or 2.4+ that never turned the integration on (it then
+    answers exactly like 2.3.x). A connection error for a configured entry, like NotEnabled."""
 
 
 class LitmusTokenLimitError(LitmusError):
@@ -85,7 +86,16 @@ class LitmusClient:
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
             raise LitmusConnectionError(str(err)) from err
         if resp.status == 401:
+            # The NVR rejects a bad token with INVALID_TOKEN (and a bad password with BAD_CREDENTIALS). A plain UNAUTHORIZED comes from
+            # its local server instead: the integration is turned off in Litmus (or it is older than 2.4.0). That is not a bad token —
+            # asking the user to sign in again would be wrong, and the token works again once the integration is turned back on.
+            try:
+                body = await resp.json(content_type=None)
+            except _BODY_ERRORS:
+                body = None
             resp.release()
+            if isinstance(body, dict) and body.get("code") == "UNAUTHORIZED":
+                raise LitmusUpdateRequiredError("integration API not available")
             raise LitmusAuthError("unauthorized")
         if resp.status == 429:
             resp.release()
@@ -308,6 +318,9 @@ class LitmusClient:
                 return await self._session.ws_connect(f"{self._base}/ws", headers=self._headers(), heartbeat=30)
         except aiohttp.WSServerHandshakeError as err:
             if err.status == 401:
+                # The handshake error carries no body: ask the unauthenticated identity call which 401 this was (see _request).
+                # info() raises LitmusUpdateRequiredError / LitmusNotEnabledError / LitmusConnectionError when the API is not there.
+                await self.info()
                 raise LitmusAuthError("unauthorized") from err
             raise LitmusConnectionError(str(err)) from err
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:

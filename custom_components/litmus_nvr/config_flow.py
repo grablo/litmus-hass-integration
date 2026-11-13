@@ -74,7 +74,8 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
             except LitmusNotEnabledError:
                 errors["base"] = "not_enabled"
             except LitmusUpdateRequiredError:
-                errors["base"] = "update_required"
+                # 2.3.x and a 2.4+ NVR that never turned the integration on answer alike (off = same as 2.3.x), so one message covers both.
+                errors["base"] = "turn_on_or_update"
             except LitmusConnectionError:
                 errors["base"] = "cannot_connect"
             except Exception:  # noqa: BLE001 — HA scaffold pattern: never crash the flow
@@ -145,6 +146,10 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = "not_set_up"
             except LitmusTokenLimitError:
                 errors["base"] = "token_limit"
+            except LitmusNotEnabledError:
+                errors["base"] = "not_enabled"
+            except LitmusUpdateRequiredError:
+                errors["base"] = "turn_on_or_update"
             except LitmusConnectionError:
                 errors["base"] = "cannot_connect"
             else:
@@ -177,7 +182,8 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
             except LitmusNotEnabledError:
                 errors["base"] = "not_enabled"
             except LitmusUpdateRequiredError:
-                errors["base"] = "update_required"
+                # 2.3.x and a 2.4+ NVR that never turned the integration on answer alike (off = same as 2.3.x), so one message covers both.
+                errors["base"] = "turn_on_or_update"
             except LitmusConnectionError:
                 errors["base"] = "cannot_connect"
             except Exception:  # noqa: BLE001

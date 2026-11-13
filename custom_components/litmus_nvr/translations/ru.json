@@ -33,6 +33,7 @@
     "error": {
       "cannot_connect": "Не удалось подключиться",
       "not_enabled": "Home Assistant отключён в Litmus NVR. Включите его в разделе «Настройки › Интеграции».",
+      "turn_on_or_update": "Включите Home Assistant в Litmus NVR › «Настройки › Интеграции». Если пункта нет, обновите Litmus NVR.",
       "invalid_auth": "Ошибка аутентификации",
       "too_many_attempts": "Слишком много попыток. Повторите попытку позже.",
       "not_litmus": "Это не Litmus NVR.",

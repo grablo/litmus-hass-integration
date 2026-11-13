@@ -33,6 +33,7 @@
     "error": {
       "cannot_connect": "연결하지 못했습니다",
       "not_enabled": "Litmus NVR에서 Home Assistant가 꺼져 있습니다. 설정 › 연동에서 켜세요.",
+      "turn_on_or_update": "Litmus NVR 설정 › 연동에서 Home Assistant를 켜세요. 메뉴가 없으면 Litmus NVR을 업데이트하세요.",
       "invalid_auth": "인증이 잘못되었습니다",
       "too_many_attempts": "시도 횟수가 너무 많습니다. 잠시 후 다시 시도해 주세요.",
       "not_litmus": "Litmus NVR이 아닙니다.",

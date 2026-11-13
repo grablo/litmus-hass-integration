@@ -33,6 +33,7 @@
     "error": {
       "cannot_connect": "การเชื่อมต่อล้มเหลว",
       "not_enabled": "Home Assistant ปิดอยู่ใน Litmus NVR เปิดได้ที่ การตั้งค่า › การเชื่อมต่อ",
+      "turn_on_or_update": "เปิด Home Assistant ใน Litmus NVR › การตั้งค่า › การเชื่อมต่อ หากไม่พบ ให้อัปเดต Litmus NVR",
       "invalid_auth": "การตรวจสอบสิทธิ์ไม่ถูกต้อง",
       "too_many_attempts": "ลองหลายครั้งเกินไป โปรดลองอีกครั้งในภายหลัง",
       "not_litmus": "อุปกรณ์นี้ไม่ใช่ Litmus NVR",

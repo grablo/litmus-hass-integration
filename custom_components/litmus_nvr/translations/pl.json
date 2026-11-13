@@ -33,6 +33,7 @@
     "error": {
       "cannot_connect": "Nie można nawiązać połączenia",
       "not_enabled": "Home Assistant jest wyłączony w Litmus NVR. Włącz go w Ustawienia › Integracje.",
+      "turn_on_or_update": "Włącz Home Assistant w Litmus NVR › Ustawienia › Integracje. Jeśli go nie widzisz, zaktualizuj Litmus NVR.",
       "invalid_auth": "Niepoprawne uwierzytelnienie",
       "too_many_attempts": "Zbyt wiele prób. Spróbuj ponownie później.",
       "not_litmus": "To nie jest Litmus NVR.",
