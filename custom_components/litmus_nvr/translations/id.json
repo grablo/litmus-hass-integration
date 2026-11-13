@@ -123,6 +123,9 @@
       "detect": {
         "name": "Deteksi"
       },
+      "record": {
+        "name": "Rekam"
+      },
       "push": {
         "name": "Notifikasi ponsel"
       }

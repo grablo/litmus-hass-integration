@@ -123,6 +123,9 @@
       "detect": {
         "name": "Wykrywanie"
       },
+      "record": {
+        "name": "Nagrywanie"
+      },
       "push": {
         "name": "Powiadomienia na telefon"
       }

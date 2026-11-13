@@ -123,6 +123,9 @@
       "detect": {
         "name": "감지"
       },
+      "record": {
+        "name": "녹화"
+      },
       "push": {
         "name": "휴대폰 알림"
       }

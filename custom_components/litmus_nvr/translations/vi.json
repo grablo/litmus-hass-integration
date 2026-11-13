@@ -123,6 +123,9 @@
       "detect": {
         "name": "Phát hiện"
       },
+      "record": {
+        "name": "Ghi hình"
+      },
       "push": {
         "name": "Thông báo trên điện thoại"
       }

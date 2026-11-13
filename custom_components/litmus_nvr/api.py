@@ -195,6 +195,15 @@ class LitmusClient:
             if resp.status >= 400:
                 raise LitmusConnectionError(f"HTTP {resp.status}")
 
+    async def set_record(self, camera_id: str, on: bool) -> None:
+        """Turn recording on or off for one camera (runtime only, like set_detect — Frigate's recordings switch)."""
+        resp = await self._request("POST", f"cameras/{_seg(camera_id)}/record", json={"on": on})
+        async with resp:
+            if resp.status == 409:
+                raise LitmusNotRunningError("not running")
+            if resp.status >= 400:
+                raise LitmusConnectionError(f"HTTP {resp.status}")
+
     async def snapshot(self, camera_id: str, width: int | None = None, height: int | None = None) -> bytes | None:
         params = {}
         if width:

@@ -123,6 +123,9 @@
       "detect": {
         "name": "Detecção"
       },
+      "record": {
+        "name": "Gravação"
+      },
       "push": {
         "name": "Notificações no celular"
       }

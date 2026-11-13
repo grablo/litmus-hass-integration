@@ -123,6 +123,9 @@
       "detect": {
         "name": "Rilevamento"
       },
+      "record": {
+        "name": "Registrazione"
+      },
       "push": {
         "name": "Notifiche sul telefono"
       }

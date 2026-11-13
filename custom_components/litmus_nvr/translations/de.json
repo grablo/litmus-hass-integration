@@ -123,6 +123,9 @@
       "detect": {
         "name": "Erkennung"
       },
+      "record": {
+        "name": "Aufnahme"
+      },
       "push": {
         "name": "Smartphone-Benachrichtigungen"
       }

@@ -123,6 +123,9 @@
       "detect": {
         "name": "Algılama"
       },
+      "record": {
+        "name": "Kayıt"
+      },
       "push": {
         "name": "Telefon bildirimleri"
       }
