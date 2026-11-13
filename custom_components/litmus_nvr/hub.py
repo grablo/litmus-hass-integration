@@ -14,10 +14,11 @@ import aiohttp
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
 from .api import LitmusAuthError, LitmusClient, LitmusConnectionError
-from .const import SIGNAL_EVENT, SIGNAL_IDENTITY, SIGNAL_PRESENCE, SIGNAL_STATE
+from .const import DOMAIN, SIGNAL_EVENT, SIGNAL_IDENTITY, SIGNAL_PRESENCE, SIGNAL_STATE
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -127,6 +128,27 @@ class LitmusHub:
         async_dispatcher_send(self.hass, SIGNAL_STATE.format(self.entry.entry_id))
 
     @callback
+    def _follow_renames(self) -> None:
+        """A camera or the place renamed in Litmus renames its device here (as reolink does on a channel rename).
+
+        Compared with the device registry, not the previous message, so a rename made while Home Assistant was down is picked up too.
+        Only the device's own name changes: a name the user gave the device in Home Assistant (name_by_user) is kept, and entity ids
+        stay the same.
+        """
+        reg = dr.async_get(self.hass)
+        wanted: list[tuple[str, str]] = [
+            (f"{self.device_id}:{cam.get('id')}", str(cam.get("name")))
+            for cam in self.state.get("cameras", [])
+            if cam.get("id") and cam.get("name")
+        ]
+        if self.device.get("name"):
+            wanted.append((self.device_id, str(self.device.get("name"))))
+        for ident, name in wanted:
+            device = reg.async_get_device(identifiers={(DOMAIN, ident)})
+            if device is not None and device.name != name:
+                reg.async_update_device(device.id, name=name)
+
+    @callback
     def _handle(self, data: dict[str, Any]) -> None:
         kind = data.get("type")
         eid = self.entry.entry_id
@@ -134,6 +156,7 @@ class LitmusHub:
             old_ids = {c.get("id") for c in self.state.get("cameras", [])}
             self.state = data.get("data", {})
             self.available = True
+            self._follow_renames()
             async_dispatcher_send(self.hass, SIGNAL_STATE.format(eid))
             new_ids = {c.get("id") for c in self.state.get("cameras", [])}
             if new_ids != old_ids and self.cameras_authoritative:
