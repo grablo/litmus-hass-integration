@@ -49,6 +49,16 @@ class LitmusHub:
         return list(self.state.get("cameras", []))
 
     @property
+    def cameras_authoritative(self) -> bool:
+        """Whether the camera list may add or remove devices.
+
+        While the NVR is stopped or starting, it reports the cameras of its last run as offline (`device.live` false).
+        An empty list in that state means "not known yet" (first start after an update, before any run), not "no cameras",
+        so devices and entities must not be removed — they show as unavailable instead.
+        """
+        return bool(self.state.get("cameras")) or self.device.get("live", True) is not False
+
+    @property
     def classes(self) -> list[str]:
         return list(self.state.get("classes", []))
 
@@ -126,7 +136,7 @@ class LitmusHub:
             self.available = True
             async_dispatcher_send(self.hass, SIGNAL_STATE.format(eid))
             new_ids = {c.get("id") for c in self.state.get("cameras", [])}
-            if new_ids != old_ids:
+            if new_ids != old_ids and self.cameras_authoritative:
                 # Camera added or removed — reload so entities and devices follow (Frigate does the same on config change).
                 self.hass.config_entries.async_schedule_reload(eid)
             return

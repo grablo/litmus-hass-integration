@@ -51,10 +51,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry) -> bo
         sw_version=hub.device.get("version"),
     )
     # Cameras removed in Litmus leave their devices behind otherwise (Frigate removes devices of cameras no longer in the config).
-    keep = {(DOMAIN, hub.device_id)} | {(DOMAIN, f"{hub.device_id}:{cam.get('id')}") for cam in hub.cameras}
-    for device in dr.async_entries_for_config_entry(dev_reg, entry.entry_id):
-        if not device.identifiers & keep:
-            dev_reg.async_update_device(device.id, remove_config_entry_id=entry.entry_id)
+    # `async_remove_device` like Frigate — `async_update_device(remove_config_entry_id=…)` is deprecated (breaks in HA 2027.8).
+    if hub.cameras_authoritative:
+        keep = {(DOMAIN, hub.device_id)} | {(DOMAIN, f"{hub.device_id}:{cam.get('id')}") for cam in hub.cameras}
+        for device in dr.async_entries_for_config_entry(dev_reg, entry.entry_id):
+            if not device.identifiers & keep:
+                dev_reg.async_remove_device(device.id)
 
     domain_data = hass.data.setdefault(DOMAIN, {})
     if not domain_data.get("view_registered"):

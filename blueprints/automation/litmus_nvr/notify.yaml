@@ -2,7 +2,8 @@ blueprint:
   name: Litmus NVR alert notification
   description: >-
     Send a phone notification with the snapshot when a Litmus NVR alert goes off.
-    The picture opens without a Home Assistant login (signed link, valid for 7 days).
+    The picture opens without a Home Assistant login (signed link). It stays available for up to 7 days,
+    for the latest 200 alerts, until Litmus NVR restarts.
   domain: automation
   source_url: https://github.com/grablo/litmus-hass-integration/blob/main/blueprints/automation/litmus_nvr/notify.yaml
   input:
@@ -61,14 +62,26 @@ conditions:
   - "{{ kinds | length == 0 or attrs.event_type in kinds }}"
 
 actions:
-  - action: "notify.mobile_app_{{ device_attr(notify_device, 'name') | slugify }}"
-    data:
-      title: "{{ attrs.title or state_attr(trigger.entity_id, 'friendly_name') }}"
-      message: "{{ attrs.message or attrs.event_type }}"
-      data:
-        image: "{{ attrs.snapshot }}"
-        attachment:
-          url: "{{ attrs.snapshot }}"
-          content-type: jpeg
-        tag: "{{ attrs.event_id }}"
-        group: "litmus-nvr"
+  # Alerts without a picture (sound) must not send an image URL — a missing attribute would render as the text "None".
+  - if:
+      - "{{ attrs.snapshot is string and attrs.snapshot | length > 0 }}"
+    then:
+      - action: "notify.mobile_app_{{ device_attr(notify_device, 'name') | slugify }}"
+        data:
+          title: "{{ attrs.title or state_attr(trigger.entity_id, 'friendly_name') }}"
+          message: "{{ attrs.message or attrs.event_type }}"
+          data:
+            image: "{{ attrs.snapshot }}"
+            attachment:
+              url: "{{ attrs.snapshot }}"
+              content-type: jpeg
+            tag: "{{ attrs.event_id }}"
+            group: "litmus-nvr"
+    else:
+      - action: "notify.mobile_app_{{ device_attr(notify_device, 'name') | slugify }}"
+        data:
+          title: "{{ attrs.title or state_attr(trigger.entity_id, 'friendly_name') }}"
+          message: "{{ attrs.message or attrs.event_type }}"
+          data:
+            tag: "{{ attrs.event_id }}"
+            group: "litmus-nvr"
