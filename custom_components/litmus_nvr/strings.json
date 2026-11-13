@@ -16,6 +16,14 @@
           "username": "Username",
           "password": "Password"
         }
+      },
+      "reconfigure": {
+        "title": "Litmus NVR address",
+        "description": "Enter the new address of the computer running Litmus NVR.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
       }
     },
     "error": {
@@ -31,7 +39,9 @@
     "abort": {
       "already_configured": "Device is already configured",
       "reauth_successful": "Re-authentication was successful",
-      "unique_id_mismatch": "This address now belongs to a different Litmus NVR."
+      "unique_id_mismatch": "This address now belongs to a different Litmus NVR.",
+      "wrong_device": "This address is a different Litmus NVR.",
+      "reconfigure_successful": "Address updated."
     }
   },
   "entity": {
@@ -58,6 +68,15 @@
       },
       "recognized_plate": {
         "name": "Recognized plate"
+      },
+      "person_count": {
+        "name": "Person count"
+      },
+      "vehicle_count": {
+        "name": "Vehicle count"
+      },
+      "animal_count": {
+        "name": "Animal count"
       }
     },
     "event": {
@@ -94,6 +113,19 @@
       "software": {
         "name": "Software"
       }
+    },
+    "switch": {
+      "detect": {
+        "name": "Detect"
+      }
+    }
+  },
+  "exceptions": {
+    "not_running": {
+      "message": "Litmus NVR is stopped. Start it and try again."
+    },
+    "cannot_connect": {
+      "message": "Could not reach Litmus NVR. Try again."
     }
   }
 }

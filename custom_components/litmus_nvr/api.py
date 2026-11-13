@@ -24,6 +24,10 @@ class LitmusConnectionError(LitmusError):
     """NVR unreachable, returned a server error or an unreadable body."""
 
 
+class LitmusNotRunningError(LitmusError):
+    """The NVR is stopped or starting — cameras cannot be changed now."""
+
+
 class LitmusThrottledError(LitmusError):
     """Too many login attempts."""
 
@@ -46,7 +50,8 @@ class LitmusClient:
 
     def __init__(self, session: aiohttp.ClientSession, host: str, port: int, token: str | None = None) -> None:
         self._session = session
-        self._base = f"http://{host}:{port}/api/v1/ext"
+        netloc = f"[{host}]" if ":" in host and not host.startswith("[") else host  # IPv6 literal
+        self._base = f"http://{netloc}:{port}/api/v1/ext"
         self._token = token
 
     @property
@@ -125,6 +130,36 @@ class LitmusClient:
     async def update_info(self) -> dict[str, Any]:
         data = await self._json("GET", "update")
         return data if isinstance(data, dict) else {}
+
+    async def recordings(self, camera_id: str, from_ms: int, to_ms: int, limit: int = 200) -> list[dict[str, Any]]:
+        """Finished recordings of one camera, newest first: [{id, start (epoch ms), duration_ms (-1 = unknown)}]."""
+        data = await self._json(
+            "GET", "recordings", params={"camera": camera_id, "from": str(from_ms), "to": str(to_ms), "limit": str(limit)}
+        )
+        items = data.get("recordings") if isinstance(data, dict) else None
+        return [i for i in items if isinstance(i, dict) and i.get("id")] if isinstance(items, list) else []
+
+    async def open_recording(self, recording_id: str, range_header: str | None) -> aiohttp.ClientResponse:
+        """Open the mp4 of a recording (Range passed through). The caller streams and releases the response."""
+        headers = {"Range": range_header} if range_header else {}
+        try:
+            resp = await self._session.get(
+                f"{self._base}/recordings/{_seg(recording_id)}/video.mp4",
+                headers={**self._headers(), **headers},
+                timeout=aiohttp.ClientTimeout(total=None, sock_connect=10, sock_read=60),
+            )
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            raise LitmusConnectionError(str(err)) from err
+        return resp
+
+    async def set_detect(self, camera_id: str, on: bool) -> None:
+        """Turn detection on or off for one camera (runtime only — the NVR's place settings win after it restarts)."""
+        resp = await self._request("POST", f"cameras/{_seg(camera_id)}/detect", json={"on": on})
+        async with resp:
+            if resp.status == 409:
+                raise LitmusNotRunningError("not running")
+            if resp.status >= 400:
+                raise LitmusConnectionError(f"HTTP {resp.status}")
 
     async def snapshot(self, camera_id: str, width: int | None = None, height: int | None = None) -> bytes | None:
         params = {}

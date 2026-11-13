@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Litmus NVR",
-        "description": "Litmus NVR 이 실행 중인 컴퓨터의 주소를 입력하세요.",
+        "description": "Litmus NVR이 실행 중인 컴퓨터의 주소를 입력하세요.",
         "data": {
           "host": "호스트",
           "port": "포트"
@@ -11,10 +11,18 @@
       },
       "credentials": {
         "title": "Litmus NVR 로그인",
-        "description": "http://{host} 에서 로그인하는 계정을 입력하세요.",
+        "description": "Litmus NVR에 로그인하는 계정을 입력하세요. (주소: {host})",
         "data": {
           "username": "사용자 이름",
           "password": "비밀번호"
+        }
+      },
+      "reconfigure": {
+        "title": "Litmus NVR 주소",
+        "description": "Litmus NVR이 실행 중인 컴퓨터의 새 주소를 입력하세요.",
+        "data": {
+          "host": "호스트",
+          "port": "포트"
         }
       }
     },
@@ -22,8 +30,8 @@
       "cannot_connect": "연결하지 못했습니다",
       "invalid_auth": "인증이 잘못되었습니다",
       "too_many_attempts": "시도 횟수가 너무 많습니다. 잠시 후 다시 시도해 주세요.",
-      "not_litmus": "Litmus NVR 이 아닙니다.",
-      "update_required": "이 통합을 사용하려면 Litmus NVR 을 업데이트하세요.",
+      "not_litmus": "Litmus NVR이 아닙니다.",
+      "update_required": "이 통합을 사용하려면 Litmus NVR을 업데이트하세요.",
       "not_set_up": "먼저 디바이스에서 Litmus NVR 설정을 마치세요.",
       "token_limit": "연결이 너무 많습니다. Litmus NVR 설정 › 연동에서 쓰지 않는 연결을 해제하세요.",
       "unknown": "예기치 않은 오류"
@@ -31,7 +39,9 @@
     "abort": {
       "already_configured": "기기가 이미 구성되었습니다",
       "reauth_successful": "재인증에 성공했습니다",
-      "unique_id_mismatch": "이 주소는 이제 다른 Litmus NVR입니다."
+      "unique_id_mismatch": "이 주소는 이제 다른 Litmus NVR입니다.",
+      "wrong_device": "다른 Litmus NVR의 주소입니다.",
+      "reconfigure_successful": "주소를 바꿨습니다."
     }
   },
   "entity": {
@@ -58,6 +68,15 @@
       },
       "recognized_plate": {
         "name": "인식된 번호판"
+      },
+      "person_count": {
+        "name": "사람 수"
+      },
+      "vehicle_count": {
+        "name": "차량 수"
+      },
+      "animal_count": {
+        "name": "동물 수"
       }
     },
     "event": {
@@ -94,6 +113,19 @@
       "software": {
         "name": "소프트웨어"
       }
+    },
+    "switch": {
+      "detect": {
+        "name": "감지"
+      }
+    }
+  },
+  "exceptions": {
+    "not_running": {
+      "message": "Litmus NVR이 정지되어 있습니다. 시작한 뒤 다시 시도해 주세요."
+    },
+    "cannot_connect": {
+      "message": "Litmus NVR에 연결하지 못했습니다. 다시 시도해 주세요."
     }
   }
 }

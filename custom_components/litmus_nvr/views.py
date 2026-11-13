@@ -48,3 +48,50 @@ class LitmusNotificationView(HomeAssistantView):
         if status != 200:
             return web.Response(status=status if status in (403, 404) else 502)
         return web.Response(body=body, content_type="image/jpeg", headers={"Cache-Control": "private, max-age=600"})
+
+
+_REC_ID = re.compile(r"[A-Za-z0-9_.-]{1,64}~[A-Za-z0-9_-]{1,64}~[0-9]{1,16}(\.[0-9]{1,6})?")   # ExtApi recordingId
+
+
+class LitmusRecordingView(HomeAssistantView):
+    """GET /api/litmus_nvr/{entry_id}/recordings/{recording_id}/video.mp4 — HA login (or a signed path from media_source).
+
+    Streams the NVR's mp4 with Range passed through, so the Media panel player can seek (Frigate proxies its clips the same way).
+    """
+
+    url = "/api/litmus_nvr/{entry_id}/recordings/{recording_id}/video.mp4"
+    name = "api:litmus_nvr:recording"
+    requires_auth = True
+
+    def __init__(self, hass: HomeAssistant) -> None:
+        self.hass = hass
+
+    @staticmethod
+    def path_for(entry_id: str, recording_id: str) -> str:
+        return f"/api/litmus_nvr/{entry_id}/recordings/{recording_id}/video.mp4"
+
+    async def get(self, request: web.Request, entry_id: str, recording_id: str) -> web.StreamResponse:
+        entry = self.hass.config_entries.async_get_entry(entry_id)
+        if entry is None or entry.domain != DOMAIN or getattr(entry, "runtime_data", None) is None:
+            return web.Response(status=404)
+        if not _REC_ID.fullmatch(recording_id):
+            return web.Response(status=404)
+        try:
+            upstream = await entry.runtime_data.client.open_recording(recording_id, request.headers.get("Range"))
+        except LitmusError:
+            return web.Response(status=502)
+        async with upstream:
+            if upstream.status not in (200, 206):
+                return web.Response(status=upstream.status if upstream.status in (404, 416) else 502)
+            headers = {
+                k: upstream.headers[k]
+                for k in ("Content-Type", "Content-Length", "Content-Range", "Accept-Ranges")
+                if k in upstream.headers
+            }
+            headers["Cache-Control"] = "private, max-age=3600"
+            resp = web.StreamResponse(status=upstream.status, headers=headers)
+            await resp.prepare(request)
+            async for chunk in upstream.content.iter_chunked(256 * 1024):
+                await resp.write(chunk)
+            await resp.write_eof()
+            return resp

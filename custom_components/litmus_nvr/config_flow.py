@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 import logging
+from urllib.parse import urlsplit
 from typing import Any
 
 import voluptuous as vol
@@ -25,6 +26,28 @@ from .const import API_VERSION, CONF_DEVICE_ID, CONF_TOKEN, DEFAULT_PORT, DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 
+def split_address(raw: str, port: int) -> tuple[str, int]:
+    """Accept what people paste: `192.168.0.6`, `192.168.0.6:8128`, `http://192.168.0.6:8128/`, `[fe80::1]:8128`.
+
+    The Litmus screen shows the address as `IP:port` with a copy button, so the host field must take it as is.
+    A port inside the address wins over the port field (it is what the user copied).
+    """
+    text = raw.strip()
+    if not text:
+        return text, port
+    if "://" not in text:
+        if text.count(":") > 1 and not text.startswith("["):
+            return text, port  # bare IPv6 without brackets — no port can be in it
+        text = "http://" + text
+    try:
+        parts = urlsplit(text)
+        host = parts.hostname or raw.strip()
+        found = parts.port
+    except ValueError:
+        return raw.strip(), port
+    return host, (found if found else port)
+
+
 class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Litmus NVR."""
 
@@ -42,8 +65,7 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            host = user_input[CONF_HOST].strip()
-            port = int(user_input[CONF_PORT])
+            host, port = split_address(user_input[CONF_HOST], int(user_input[CONF_PORT]))
             try:
                 info = await self._probe(host, port)
             except LitmusConnectionError:
@@ -108,6 +130,35 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
             errors=errors,
             description_placeholders={"host": f"{self._host}:{self._port}"},
         )
+
+    async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """Change the address (the PC running Litmus got a new IP) without removing the integration — Frigate and Reolink do the same.
+        The new address must be the same Litmus device; the token stays."""
+        entry = self._get_reconfigure_entry()
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            host, port = split_address(user_input[CONF_HOST], int(user_input[CONF_PORT]))
+            try:
+                info = await self._probe(host, port)
+            except LitmusConnectionError:
+                errors["base"] = "cannot_connect"
+            except Exception:  # noqa: BLE001
+                _LOGGER.exception("Unexpected error while probing Litmus NVR")
+                errors["base"] = "unknown"
+            else:
+                if info.get("product") != "litmus":
+                    errors["base"] = "not_litmus"
+                else:
+                    await self.async_set_unique_id(str(info.get("id")))
+                    self._abort_if_unique_id_mismatch(reason="wrong_device")
+                    return self.async_update_reload_and_abort(entry, data_updates={CONF_HOST: host, CONF_PORT: port})
+        schema = vol.Schema(
+            {
+                vol.Required(CONF_HOST, default=entry.data.get(CONF_HOST, "")): str,
+                vol.Required(CONF_PORT, default=entry.data.get(CONF_PORT, DEFAULT_PORT)): int,
+            }
+        )
+        return self.async_show_form(step_id="reconfigure", data_schema=schema, errors=errors)
 
     async def async_step_reauth(self, entry_data: Mapping[str, Any]) -> ConfigFlowResult:
         self._host = entry_data[CONF_HOST]

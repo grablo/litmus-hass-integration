@@ -15,12 +15,13 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .api import LitmusAuthError, LitmusClient, LitmusConnectionError
 from .const import CONF_TOKEN, DOMAIN, MANUFACTURER, NAME
 from .hub import LitmusHub
-from .views import LitmusNotificationView
+from .views import LitmusNotificationView, LitmusRecordingView
 
 PLATFORMS: list[Platform] = [
     Platform.CAMERA,
     Platform.BINARY_SENSOR,
     Platform.SENSOR,
+    Platform.SWITCH,
     Platform.EVENT,
     Platform.IMAGE,
     Platform.UPDATE,
@@ -61,6 +62,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry) -> bo
     domain_data = hass.data.setdefault(DOMAIN, {})
     if not domain_data.get("view_registered"):
         hass.http.register_view(LitmusNotificationView(hass))
+        hass.http.register_view(LitmusRecordingView(hass))
         domain_data["view_registered"] = True
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
