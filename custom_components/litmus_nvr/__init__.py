@@ -15,6 +15,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .api import LitmusAuthError, LitmusClient, LitmusConnectionError
 from .const import CONF_TOKEN, DOMAIN, MANUFACTURER, NAME
 from .hub import LitmusHub
+from .panel import async_add_panel, async_remove_panel
 from .views import LitmusNotificationView, LitmusRecordingView, LitmusThumbView
 
 PLATFORMS: list[Platform] = [
@@ -67,6 +68,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry) -> bo
         domain_data["view_registered"] = True
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    # Sidebar entry that opens the NVR's own screen (Frigate's add-on puts its UI in the sidebar the same way). With several NVRs
+    # the place name tells them apart.
+    several = len(hass.config_entries.async_entries(DOMAIN)) > 1
+    title = f"{NAME} · {hub.device.get('name')}" if several and hub.device.get("name") else NAME
+    await async_add_panel(hass, hub.device_id, entry.data[CONF_HOST], entry.data[CONF_PORT], title)
     return True
 
 
@@ -80,5 +86,6 @@ async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
 async def async_unload_entry(hass: HomeAssistant, entry: LitmusConfigEntry) -> bool:
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unloaded:
+        async_remove_panel(hass, entry.runtime_data.device_id)
         await entry.runtime_data.async_stop()
     return unloaded
