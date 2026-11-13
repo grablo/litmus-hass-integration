@@ -117,6 +117,9 @@
     "switch": {
       "detect": {
         "name": "감지"
+      },
+      "push": {
+        "name": "휴대폰 알림"
       }
     }
   },

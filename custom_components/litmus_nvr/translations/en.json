@@ -117,6 +117,9 @@
     "switch": {
       "detect": {
         "name": "Detect"
+      },
+      "push": {
+        "name": "Phone notifications"
       }
     }
   },

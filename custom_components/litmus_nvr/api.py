@@ -152,6 +152,13 @@ class LitmusClient:
             raise LitmusConnectionError(str(err)) from err
         return resp
 
+    async def set_push(self, on: bool) -> None:
+        """Litmus phone notifications on/off (kept by the NVR across restarts; turning the HA integration off in Litmus re-enables them)."""
+        resp = await self._request("POST", "notifications", json={"on": on})
+        async with resp:
+            if resp.status >= 400:
+                raise LitmusConnectionError(f"HTTP {resp.status}")
+
     async def set_detect(self, camera_id: str, on: bool) -> None:
         """Turn detection on or off for one camera (runtime only — the NVR's place settings win after it restarts)."""
         resp = await self._request("POST", f"cameras/{_seg(camera_id)}/detect", json={"on": on})

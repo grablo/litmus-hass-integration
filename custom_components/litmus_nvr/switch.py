@@ -18,13 +18,15 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from . import LitmusConfigEntry
 from .api import LitmusError, LitmusNotRunningError
 from .const import DOMAIN
-from .entity import LitmusCameraEntity, unique_id
+from .entity import LitmusCameraEntity, LitmusEntity, unique_id
 from .hub import LitmusHub
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
     hub = entry.runtime_data
-    async_add_entities(LitmusDetectSwitch(hub, cam["id"]) for cam in hub.cameras)
+    entities: list[SwitchEntity] = [LitmusDetectSwitch(hub, cam["id"]) for cam in hub.cameras]
+    entities.append(LitmusPushSwitch(hub))
+    async_add_entities(entities)
 
 
 class LitmusDetectSwitch(LitmusCameraEntity, SwitchEntity):
@@ -65,5 +67,43 @@ class LitmusDetectSwitch(LitmusCameraEntity, SwitchEntity):
         except LitmusError as err:
             raise HomeAssistantError(translation_domain=DOMAIN, translation_key="cannot_connect") from err
         # The NVR pushes its state within a few seconds; show the new value now (optimistic, Frigate does the same).
+        self._pending = on
+        self.async_write_ha_state()
+
+
+class LitmusPushSwitch(LitmusEntity, SwitchEntity):
+    """Litmus phone notifications for the whole NVR — Reolink's "Push notifications" switch.
+
+    Off: Litmus alert rules still run (recording, webhooks, Home Assistant events …) but the phone push is not sent. The NVR keeps
+    the value across restarts and shows it in Litmus › Settings › Integrations, where it can be turned back on.
+    """
+
+    _attr_entity_category = EntityCategory.CONFIG
+    _attr_translation_key = "push"
+
+    def __init__(self, hub: LitmusHub) -> None:
+        super().__init__(hub)
+        self._attr_unique_id = unique_id(hub, "switch", "push")
+        self._pending: bool | None = None
+
+    @property
+    def is_on(self) -> bool:
+        actual = self.hub.device.get("push", True) is not False
+        if self._pending is not None and self._pending != actual:
+            return self._pending
+        self._pending = None
+        return actual
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        await self._set(True)
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        await self._set(False)
+
+    async def _set(self, on: bool) -> None:
+        try:
+            await self.hub.client.set_push(on)
+        except LitmusError as err:
+            raise HomeAssistantError(translation_domain=DOMAIN, translation_key="cannot_connect") from err
         self._pending = on
         self.async_write_ha_state()
