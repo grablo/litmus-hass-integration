@@ -95,3 +95,35 @@ class LitmusRecordingView(HomeAssistantView):
                 await resp.write(chunk)
             await resp.write_eof()
             return resp
+
+
+_THUMB_KEYS = {"kind", "var", "t", "off", "box"}
+_THUMB_VAL = re.compile(r"[A-Za-z0-9_.,:-]{1,128}")
+
+
+class LitmusThumbView(HomeAssistantView):
+    """GET /api/litmus_nvr/{entry_id}/thumb.jpg?kind=&var=&t=&off=&box= — card photos in the Media panel (HA login or signed path,
+    like Frigate's ThumbnailsProxyView). Only the five keys the NVR issues are forwarded."""
+
+    url = "/api/litmus_nvr/{entry_id}/thumb.jpg"
+    name = "api:litmus_nvr:thumb"
+    requires_auth = True
+
+    def __init__(self, hass: HomeAssistant) -> None:
+        self.hass = hass
+
+    async def get(self, request: web.Request, entry_id: str) -> web.Response:
+        entry = self.hass.config_entries.async_get_entry(entry_id)
+        if entry is None or entry.domain != DOMAIN or getattr(entry, "runtime_data", None) is None:
+            return web.Response(status=404)
+        q = {k: v for k, v in request.query.items() if k in _THUMB_KEYS}
+        if set(q) != _THUMB_KEYS or not all(_THUMB_VAL.fullmatch(v) for v in q.values()):
+            return web.Response(status=404)
+        from urllib.parse import urlencode
+        try:
+            body = await entry.runtime_data.client.card_thumb(urlencode(q))
+        except LitmusError:
+            return web.Response(status=502)
+        if not body:
+            return web.Response(status=404)
+        return web.Response(body=body, content_type="image/jpeg", headers={"Cache-Control": "private, max-age=86400"})

@@ -1,6 +1,9 @@
 """Recordings in Home Assistant's Media panel — the place Frigate's integration puts its clips (media_source.py).
 
-Tree: Litmus NVR (one per config entry) › camera › day › recording. Days come from one query over the last 30 days; a day
+Tree: Litmus NVR (one per config entry) › {People, Faces, Vehicles, Animals, <cameras>}.
+  · kind folders show Litmus cards (the same person / vehicle / animal grouped, with the card photo) › that card's appearances
+    (photo + the recording that holds it, opened at the appearance) — the card list the Litmus app shows (user request 2026-11-13).
+  · camera › day › recording. Days come from one query over the last 30 days; a day
 lists that day's recordings. Playing a recording goes through LitmusRecordingView (an authenticated HA proxy with Range
 support), so the browser never needs the NVR's address or token.
 """
@@ -25,6 +28,11 @@ from .api import LitmusError
 from .const import DOMAIN, NAME
 
 DAYS = 30          # how far back the camera folder looks for days with recordings
+KINDS = ("person", "face", "vehicle", "animal")
+KIND_TITLES = {
+    "ko": {"person": "사람", "face": "얼굴", "vehicle": "차량", "animal": "동물"},
+    "en": {"person": "People", "face": "Faces", "vehicle": "Vehicles", "animal": "Animals"},
+}
 DAY_LIMIT = 500    # recordings per day (the NVR caps one answer at 500)
 
 
@@ -57,11 +65,14 @@ class LitmusMediaSource(MediaSource):
 
     async def async_resolve_media(self, item: MediaSourceItem) -> PlayMedia:
         parts = (item.identifier or "").split("/")
-        if len(parts) != 3 or parts[1] != "rec":
+        if len(parts) not in (3, 4) or parts[1] != "rec":
             raise Unresolvable("Unknown recording")
         self._hub(parts[0])
         from .views import LitmusRecordingView
-        return PlayMedia(LitmusRecordingView.path_for(parts[0], parts[2]), "video/mp4")
+        url = LitmusRecordingView.path_for(parts[0], parts[2])
+        if len(parts) == 4 and parts[3].isdigit():
+            url += f"#t={int(parts[3]) / 1000:.1f}"   # open at the appearance (W3C media fragment; the player seeks there)
+        return PlayMedia(url, "video/mp4")
 
     async def async_browse_media(self, item: MediaSourceItem) -> BrowseMediaSource:
         ident = item.identifier or ""
@@ -77,6 +88,10 @@ class LitmusMediaSource(MediaSource):
             return await self._camera_node(parts[0], parts[2])
         if len(parts) == 4 and parts[1] == "day":
             return await self._day_node(parts[0], parts[2], parts[3])
+        if len(parts) == 3 and parts[1] == "kind" and parts[2] in KINDS:
+            return await self._kind_node(parts[0], parts[2])
+        if len(parts) == 4 and parts[1] == "card" and parts[2] in KINDS and parts[3].isdigit():
+            return await self._card_node(parts[0], parts[2], int(parts[3]))
         raise Unresolvable("Unknown media item")
 
     # ── nodes ──
@@ -99,11 +114,76 @@ class LitmusMediaSource(MediaSource):
         title = hub.device.get("name") or NAME
         if not children:
             return self._folder(entry_id, title, None)
+        titles = KIND_TITLES["ko" if (self.hass.config.language or "").startswith("ko") else "en"]
+        kinds = [self._folder(f"{entry_id}/kind/{k}", titles[k], None) for k in KINDS]
         cams = [
             self._folder(f"{entry_id}/cam/{cam['id']}", cam.get("name") or cam["id"], None)
             for cam in hub.cameras
         ]
-        return self._folder(entry_id, title, cams)
+        return self._folder(entry_id, title, kinds + cams)
+
+    def _thumb(self, entry_id: str, query: str | None) -> str | None:
+        return f"/api/litmus_nvr/{entry_id}/thumb.jpg?{query}" if query else None
+
+    async def _kind_node(self, entry_id: str, kind: str) -> BrowseMediaSource:
+        hub = self._hub(entry_id)
+        try:
+            cards = await hub.client.cards(kind, DAYS, 200)
+        except LitmusError as err:
+            raise Unresolvable(f"Litmus NVR is not reachable: {err}") from err
+        ko = (self.hass.config.language or "").startswith("ko")
+        children = []
+        for c in cards:
+            last = dt_util.as_local(dt_util.utc_from_timestamp(int(c.get("last") or 0) / 1000))
+            label = c.get("name") or c.get("plate") or c.get("species") or ""
+            when = last.strftime("%m/%d %H:%M")
+            count = int(c.get("count") or 0)
+            title = " · ".join(x for x in (label, when, (f"{count}회" if ko else f"{count}×") if count else "") if x)
+            children.append(
+                BrowseMediaSource(
+                    domain=DOMAIN,
+                    identifier=f"{entry_id}/card/{kind}/{int(c['id'])}",
+                    media_class=MediaClass.DIRECTORY,
+                    media_content_type=MediaType.VIDEO,
+                    title=title,
+                    can_play=False,
+                    can_expand=True,
+                    thumbnail=self._thumb(entry_id, c.get("thumb")),
+                )
+            )
+        titles = KIND_TITLES["ko" if ko else "en"]
+        node = self._folder(f"{entry_id}/kind/{kind}", titles[kind], children)
+        node.children_media_class = MediaClass.DIRECTORY
+        return node
+
+    async def _card_node(self, entry_id: str, kind: str, card_id: int) -> BrowseMediaSource:
+        hub = self._hub(entry_id)
+        try:
+            apps = await hub.client.appearances(kind, card_id, DAYS, 200)
+        except LitmusError as err:
+            raise Unresolvable(f"Litmus NVR is not reachable: {err}") from err
+        children = []
+        for a in apps:
+            t = dt_util.as_local(dt_util.utc_from_timestamp(int(a.get("first") or 0) / 1000))
+            title = " · ".join(x for x in (t.strftime("%m/%d %H:%M:%S"), a.get("camera_name") or "", a.get("plate") or "") if x)
+            rec = a.get("recording")
+            ident = f"{entry_id}/rec/{rec}/{int(a.get('offset_ms') or 0)}" if rec else f"{entry_id}/card/{kind}/{card_id}"
+            children.append(
+                BrowseMediaSource(
+                    domain=DOMAIN,
+                    identifier=ident,
+                    media_class=MediaClass.VIDEO,
+                    media_content_type="video/mp4",
+                    title=title,
+                    can_play=bool(rec),
+                    can_expand=False,
+                    thumbnail=self._thumb(entry_id, a.get("thumb")),
+                )
+            )
+        titles = KIND_TITLES["ko" if (self.hass.config.language or "").startswith("ko") else "en"]
+        node = self._folder(f"{entry_id}/card/{kind}/{card_id}", titles[kind], children)
+        node.children_media_class = MediaClass.VIDEO
+        return node
 
     async def _camera_node(self, entry_id: str, camera_id: str) -> BrowseMediaSource:
         hub = self._hub(entry_id)

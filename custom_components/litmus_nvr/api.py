@@ -152,6 +152,29 @@ class LitmusClient:
             raise LitmusConnectionError(str(err)) from err
         return resp
 
+    async def cards(self, kind: str, days: int = 30, limit: int = 100) -> list[dict[str, Any]]:
+        """Litmus cards (same person / vehicle / animal grouped), newest first: [{id, name?, plate?, species?, count, first, last, thumb}]."""
+        data = await self._json("GET", "cards", params={"kind": kind, "days": str(days), "limit": str(limit)})
+        items = data.get("cards") if isinstance(data, dict) else None
+        return [i for i in items if isinstance(i, dict) and i.get("id")] if isinstance(items, list) else []
+
+    async def appearances(self, kind: str, card_id: int, days: int = 30, limit: int = 100) -> list[dict[str, Any]]:
+        """One card's appearances, newest first: [{camera, camera_name, first, last, thumb, recording?, offset_ms?}]."""
+        data = await self._json("GET", f"cards/{_seg(kind)}/{int(card_id)}/appearances", params={"days": str(days), "limit": str(limit)})
+        items = data.get("appearances") if isinstance(data, dict) else None
+        return [i for i in items if isinstance(i, dict)] if isinstance(items, list) else []
+
+    async def card_thumb(self, query: str) -> bytes | None:
+        """A card / appearance photo (the crop Litmus shows on the card). None when the NVR has no prepared crop for it."""
+        resp = await self._request("GET", f"cards/thumb.jpg?{query}")
+        async with resp:
+            if resp.status != 200:
+                return None
+            try:
+                return await resp.read()
+            except _BODY_ERRORS:
+                return None
+
     async def set_push(self, on: bool) -> None:
         """Litmus phone notifications on/off (kept by the NVR across restarts; turning the HA integration off in Litmus re-enables them)."""
         resp = await self._request("POST", "notifications", json={"on": on})
