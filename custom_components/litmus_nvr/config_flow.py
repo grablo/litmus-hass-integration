@@ -115,6 +115,11 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="zeroconf_confirm", description_placeholders={"host": f"{self._host}:{self._port}"}
         )
 
+    def _token_name(self) -> str:
+        """Name shown in Litmus › Settings › Integrations — the HA home name tells several Home Assistants apart."""
+        home = (self.hass.config.location_name or "").strip()
+        return f"Home Assistant ({home[:40]})" if home and home != "Home" else "Home Assistant"
+
     async def async_step_credentials(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
@@ -125,7 +130,7 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
                     info = await client.info()
                     await self.async_set_unique_id(str(info.get("id")))
                     self._abort_if_unique_id_mismatch()
-                token = await client.create_token(user_input[CONF_USERNAME], user_input[CONF_PASSWORD], "Home Assistant")
+                token = await client.create_token(user_input[CONF_USERNAME], user_input[CONF_PASSWORD], self._token_name())
             except LitmusAuthError:
                 errors["base"] = "invalid_auth"
             except LitmusThrottledError:
