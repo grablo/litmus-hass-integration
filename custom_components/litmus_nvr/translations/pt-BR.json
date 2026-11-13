@@ -1,0 +1,139 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Litmus NVR",
+        "description": "Digite o endereço do computador em que o Litmus NVR está em execução.",
+        "data": {
+          "host": "Host",
+          "port": "Porta"
+        }
+      },
+      "credentials": {
+        "title": "Entrar no Litmus NVR",
+        "description": "Use a conta com que você entra em http://{host}.",
+        "data": {
+          "username": "Usuário",
+          "password": "Senha"
+        }
+      },
+      "reconfigure": {
+        "title": "Endereço do Litmus NVR",
+        "description": "Digite o novo endereço do computador em que o Litmus NVR está em execução.",
+        "data": {
+          "host": "Host",
+          "port": "Porta"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Litmus NVR encontrado",
+        "description": "Adicionar o Litmus NVR em {host}?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Falha ao conectar",
+      "invalid_auth": "Autenticação inválida",
+      "too_many_attempts": "Muitas tentativas. Tente novamente mais tarde.",
+      "not_litmus": "Não é um Litmus NVR.",
+      "update_required": "Atualize o Litmus NVR para usar esta integração.",
+      "not_set_up": "Primeiro, conclua a configuração do Litmus NVR no dispositivo.",
+      "token_limit": "Muitas conexões. Desconecte uma que não esteja em uso no Litmus NVR, em Configurações › Integrações.",
+      "unknown": "Erro inesperado"
+    },
+    "abort": {
+      "already_configured": "O dispositivo já está configurado",
+      "reauth_successful": "A reautenticação foi bem-sucedida",
+      "unique_id_mismatch": "Este endereço agora pertence a outro Litmus NVR.",
+      "wrong_device": "Este endereço pertence a outro Litmus NVR.",
+      "reconfigure_successful": "Endereço atualizado."
+    },
+    "flow_title": "{name}"
+  },
+  "entity": {
+    "binary_sensor": {
+      "person": {
+        "name": "Pessoa"
+      },
+      "vehicle": {
+        "name": "Veículo"
+      },
+      "animal": {
+        "name": "Animal"
+      },
+      "sound": {
+        "name": "Som"
+      },
+      "online": {
+        "name": "Conectado"
+      }
+    },
+    "sensor": {
+      "recognized_face": {
+        "name": "Rosto reconhecido"
+      },
+      "recognized_plate": {
+        "name": "Placa reconhecida"
+      },
+      "person_count": {
+        "name": "Número de pessoas"
+      },
+      "vehicle_count": {
+        "name": "Número de veículos"
+      },
+      "animal_count": {
+        "name": "Número de animais"
+      }
+    },
+    "event": {
+      "alert": {
+        "name": "Alerta",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "person": "Pessoa",
+              "face_known": "Rosto cadastrado",
+              "face_unknown": "Rosto não cadastrado",
+              "face_specific": "Rosto específico",
+              "vehicle_any": "Veículo",
+              "vehicle_known": "Veículo cadastrado",
+              "vehicle_unknown": "Veículo não cadastrado",
+              "vehicle_specific": "Veículo específico",
+              "animal_any": "Animal",
+              "animal_specific": "Animal escolhido",
+              "text_person": "Pessoa por descrição",
+              "text_vehicle": "Veículo por descrição",
+              "text_animal": "Animal por descrição",
+              "sound": "Som"
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "last_alert": {
+        "name": "Último alerta"
+      }
+    },
+    "update": {
+      "software": {
+        "name": "Software"
+      }
+    },
+    "switch": {
+      "detect": {
+        "name": "Detecção"
+      },
+      "push": {
+        "name": "Notificações no celular"
+      }
+    }
+  },
+  "exceptions": {
+    "not_running": {
+      "message": "O Litmus NVR está parado. Inicie-o e tente novamente."
+    },
+    "cannot_connect": {
+      "message": "Não foi possível acessar o Litmus NVR. Tente novamente."
+    }
+  }
+}

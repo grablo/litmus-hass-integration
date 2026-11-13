@@ -1,0 +1,139 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Litmus NVR",
+        "description": "輸入執行 Litmus NVR 的電腦位址。",
+        "data": {
+          "host": "主機端",
+          "port": "通訊埠"
+        }
+      },
+      "credentials": {
+        "title": "登入 Litmus NVR",
+        "description": "使用你在 http://{host} 登入時所用的帳號。",
+        "data": {
+          "username": "使用者名稱",
+          "password": "密碼"
+        }
+      },
+      "reconfigure": {
+        "title": "Litmus NVR 位址",
+        "description": "輸入執行 Litmus NVR 的電腦新位址。",
+        "data": {
+          "host": "主機端",
+          "port": "通訊埠"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "找到 Litmus NVR",
+        "description": "要新增位於 {host} 的 Litmus NVR 嗎？"
+      }
+    },
+    "error": {
+      "cannot_connect": "連線失敗",
+      "invalid_auth": "身份驗證無效",
+      "too_many_attempts": "嘗試次數過多，請稍後再試。",
+      "not_litmus": "這不是 Litmus NVR。",
+      "update_required": "請更新 Litmus NVR 以使用此整合。",
+      "not_set_up": "請先在裝置上完成 Litmus NVR 的設定。",
+      "token_limit": "連線過多。請在 Litmus NVR 的「設定 › 整合」中斷開未使用的連線。",
+      "unknown": "未預期錯誤"
+    },
+    "abort": {
+      "already_configured": "裝置已經設定完成",
+      "reauth_successful": "重新認證成功",
+      "unique_id_mismatch": "此位址現在屬於另一台 Litmus NVR。",
+      "wrong_device": "此位址屬於另一台 Litmus NVR。",
+      "reconfigure_successful": "已更新位址。"
+    },
+    "flow_title": "{name}"
+  },
+  "entity": {
+    "binary_sensor": {
+      "person": {
+        "name": "人"
+      },
+      "vehicle": {
+        "name": "車輛"
+      },
+      "animal": {
+        "name": "動物"
+      },
+      "sound": {
+        "name": "聲音"
+      },
+      "online": {
+        "name": "已連線"
+      }
+    },
+    "sensor": {
+      "recognized_face": {
+        "name": "辨識到的人臉"
+      },
+      "recognized_plate": {
+        "name": "辨識到的車牌"
+      },
+      "person_count": {
+        "name": "人數"
+      },
+      "vehicle_count": {
+        "name": "車輛數"
+      },
+      "animal_count": {
+        "name": "動物數"
+      }
+    },
+    "event": {
+      "alert": {
+        "name": "通知",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "person": "人",
+              "face_known": "已登錄的人臉",
+              "face_unknown": "未登錄的人臉",
+              "face_specific": "特定人臉",
+              "vehicle_any": "車輛",
+              "vehicle_known": "已登錄的車輛",
+              "vehicle_unknown": "未登錄的車輛",
+              "vehicle_specific": "特定車輛",
+              "animal_any": "動物",
+              "animal_specific": "所選動物",
+              "text_person": "符合描述的人",
+              "text_vehicle": "符合描述的車輛",
+              "text_animal": "符合描述的動物",
+              "sound": "聲音"
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "last_alert": {
+        "name": "最近的通知"
+      }
+    },
+    "update": {
+      "software": {
+        "name": "軟體"
+      }
+    },
+    "switch": {
+      "detect": {
+        "name": "偵測"
+      },
+      "push": {
+        "name": "手機通知"
+      }
+    }
+  },
+  "exceptions": {
+    "not_running": {
+      "message": "Litmus NVR 已停止。請啟動後再試一次。"
+    },
+    "cannot_connect": {
+      "message": "無法連線到 Litmus NVR，請再試一次。"
+    }
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Litmus NVR",
+        "description": "Litmus NVR が動作しているコンピューターのアドレスを入力してください。",
+        "data": {
+          "host": "ホスト",
+          "port": "ポート"
+        }
+      },
+      "credentials": {
+        "title": "Litmus NVR にログイン",
+        "description": "http://{host} でログインするときのアカウントを使用してください。",
+        "data": {
+          "username": "ユーザー名",
+          "password": "パスワード"
+        }
+      },
+      "reconfigure": {
+        "title": "Litmus NVR のアドレス",
+        "description": "Litmus NVR が動作しているコンピューターの新しいアドレスを入力してください。",
+        "data": {
+          "host": "ホスト",
+          "port": "ポート"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Litmus NVR が見つかりました",
+        "description": "{host} の Litmus NVR を追加しますか？"
+      }
+    },
+    "error": {
+      "cannot_connect": "接続に失敗しました",
+      "invalid_auth": "無効な認証",
+      "too_many_attempts": "試行回数が多すぎます。しばらくしてからもう一度お試しください。",
+      "not_litmus": "Litmus NVR ではありません。",
+      "update_required": "この統合を使用するには Litmus NVR をアップデートしてください。",
+      "not_set_up": "先にデバイスで Litmus NVR の設定を完了してください。",
+      "token_limit": "接続が多すぎます。Litmus NVR の [設定] › [連携] で使用していない接続を切断してください。",
+      "unknown": "予期しないエラー"
+    },
+    "abort": {
+      "already_configured": "デバイスはすでに設定されています",
+      "reauth_successful": "再認証に成功しました",
+      "unique_id_mismatch": "このアドレスは現在、別の Litmus NVR のものです。",
+      "wrong_device": "このアドレスは別の Litmus NVR です。",
+      "reconfigure_successful": "アドレスを更新しました。"
+    },
+    "flow_title": "{name}"
+  },
+  "entity": {
+    "binary_sensor": {
+      "person": {
+        "name": "人物"
+      },
+      "vehicle": {
+        "name": "車両"
+      },
+      "animal": {
+        "name": "動物"
+      },
+      "sound": {
+        "name": "音"
+      },
+      "online": {
+        "name": "接続済み"
+      }
+    },
+    "sensor": {
+      "recognized_face": {
+        "name": "認識された顔"
+      },
+      "recognized_plate": {
+        "name": "認識されたナンバープレート"
+      },
+      "person_count": {
+        "name": "人数"
+      },
+      "vehicle_count": {
+        "name": "車両数"
+      },
+      "animal_count": {
+        "name": "動物の数"
+      }
+    },
+    "event": {
+      "alert": {
+        "name": "通知",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "person": "人物",
+              "face_known": "登録済みの顔",
+              "face_unknown": "未登録の顔",
+              "face_specific": "特定の顔",
+              "vehicle_any": "車両",
+              "vehicle_known": "登録済みの車両",
+              "vehicle_unknown": "未登録の車両",
+              "vehicle_specific": "特定の車両",
+              "animal_any": "動物",
+              "animal_specific": "選んだ動物",
+              "text_person": "説明に一致する人物",
+              "text_vehicle": "説明に一致する車両",
+              "text_animal": "説明に一致する動物",
+              "sound": "音"
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "last_alert": {
+        "name": "最後の通知"
+      }
+    },
+    "update": {
+      "software": {
+        "name": "ソフトウェア"
+      }
+    },
+    "switch": {
+      "detect": {
+        "name": "検知"
+      },
+      "push": {
+        "name": "スマートフォンへの通知"
+      }
+    }
+  },
+  "exceptions": {
+    "not_running": {
+      "message": "Litmus NVR が停止しています。起動してからもう一度お試しください。"
+    },
+    "cannot_connect": {
+      "message": "Litmus NVR に接続できませんでした。もう一度お試しください。"
+    }
+  }
+}

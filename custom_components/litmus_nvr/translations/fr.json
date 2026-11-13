@@ -1,0 +1,139 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Litmus NVR",
+        "description": "Saisissez l’adresse de l’ordinateur sur lequel Litmus NVR est installé.",
+        "data": {
+          "host": "Hôte",
+          "port": "Port"
+        }
+      },
+      "credentials": {
+        "title": "Se connecter à Litmus NVR",
+        "description": "Utilisez le compte avec lequel vous vous connectez sur http://{host}.",
+        "data": {
+          "username": "Nom d’utilisateur",
+          "password": "Mot de passe"
+        }
+      },
+      "reconfigure": {
+        "title": "Adresse de Litmus NVR",
+        "description": "Saisissez la nouvelle adresse de l’ordinateur sur lequel Litmus NVR est installé.",
+        "data": {
+          "host": "Hôte",
+          "port": "Port"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Litmus NVR détecté",
+        "description": "Ajouter le Litmus NVR situé à {host} ?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Échec de la connexion",
+      "invalid_auth": "Authentification non valide",
+      "too_many_attempts": "Trop de tentatives. Réessayez plus tard.",
+      "not_litmus": "Ce n’est pas un Litmus NVR.",
+      "update_required": "Mettez à jour Litmus NVR pour utiliser cette intégration.",
+      "not_set_up": "Terminez d’abord la configuration de Litmus NVR sur l’appareil.",
+      "token_limit": "Trop de connexions. Dans Litmus NVR, déconnectez-en une inutilisée sous Paramètres › Intégrations.",
+      "unknown": "Erreur inattendue"
+    },
+    "abort": {
+      "already_configured": "L'appareil est déjà configuré",
+      "reauth_successful": "La réauthentification a réussi",
+      "unique_id_mismatch": "Cette adresse correspond désormais à un autre Litmus NVR.",
+      "wrong_device": "Cette adresse correspond à un autre Litmus NVR.",
+      "reconfigure_successful": "Adresse mise à jour."
+    },
+    "flow_title": "{name}"
+  },
+  "entity": {
+    "binary_sensor": {
+      "person": {
+        "name": "Personne"
+      },
+      "vehicle": {
+        "name": "Véhicule"
+      },
+      "animal": {
+        "name": "Animal"
+      },
+      "sound": {
+        "name": "Son"
+      },
+      "online": {
+        "name": "Connecté"
+      }
+    },
+    "sensor": {
+      "recognized_face": {
+        "name": "Visage reconnu"
+      },
+      "recognized_plate": {
+        "name": "Plaque reconnue"
+      },
+      "person_count": {
+        "name": "Nombre de personnes"
+      },
+      "vehicle_count": {
+        "name": "Nombre de véhicules"
+      },
+      "animal_count": {
+        "name": "Nombre d’animaux"
+      }
+    },
+    "event": {
+      "alert": {
+        "name": "Alerte",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "person": "Personne",
+              "face_known": "Visage connu",
+              "face_unknown": "Visage inconnu",
+              "face_specific": "Visage précis",
+              "vehicle_any": "Véhicule",
+              "vehicle_known": "Véhicule connu",
+              "vehicle_unknown": "Véhicule inconnu",
+              "vehicle_specific": "Véhicule précis",
+              "animal_any": "Animal",
+              "animal_specific": "Animal choisi",
+              "text_person": "Personne décrite",
+              "text_vehicle": "Véhicule décrit",
+              "text_animal": "Animal décrit",
+              "sound": "Son"
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "last_alert": {
+        "name": "Dernière alerte"
+      }
+    },
+    "update": {
+      "software": {
+        "name": "Logiciel"
+      }
+    },
+    "switch": {
+      "detect": {
+        "name": "Détection"
+      },
+      "push": {
+        "name": "Notifications sur le téléphone"
+      }
+    }
+  },
+  "exceptions": {
+    "not_running": {
+      "message": "Litmus NVR est arrêté. Démarrez-le, puis réessayez."
+    },
+    "cannot_connect": {
+      "message": "Impossible de joindre Litmus NVR. Réessayez."
+    }
+  }
+}

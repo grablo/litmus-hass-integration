@@ -1,0 +1,139 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Litmus NVR",
+        "description": "输入运行 Litmus NVR 的电脑的地址。",
+        "data": {
+          "host": "主机",
+          "port": "端口"
+        }
+      },
+      "credentials": {
+        "title": "登录 Litmus NVR",
+        "description": "使用你在 http://{host} 登录时所用的账户。",
+        "data": {
+          "username": "用户名",
+          "password": "密码"
+        }
+      },
+      "reconfigure": {
+        "title": "Litmus NVR 地址",
+        "description": "输入运行 Litmus NVR 的电脑的新地址。",
+        "data": {
+          "host": "主机",
+          "port": "端口"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "发现 Litmus NVR",
+        "description": "要添加位于 {host} 的 Litmus NVR 吗？"
+      }
+    },
+    "error": {
+      "cannot_connect": "连接失败",
+      "invalid_auth": "身份验证无效",
+      "too_many_attempts": "尝试次数过多，请稍后重试。",
+      "not_litmus": "这不是 Litmus NVR。",
+      "update_required": "请更新 Litmus NVR 以使用此集成。",
+      "not_set_up": "请先在设备上完成 Litmus NVR 的设置。",
+      "token_limit": "连接过多。请在 Litmus NVR 的“设置 › 集成”中断开不再使用的连接。",
+      "unknown": "意外错误"
+    },
+    "abort": {
+      "already_configured": "设备已配置",
+      "reauth_successful": "重新认证成功",
+      "unique_id_mismatch": "此地址现在属于另一台 Litmus NVR。",
+      "wrong_device": "此地址属于另一台 Litmus NVR。",
+      "reconfigure_successful": "地址已更新。"
+    },
+    "flow_title": "{name}"
+  },
+  "entity": {
+    "binary_sensor": {
+      "person": {
+        "name": "人"
+      },
+      "vehicle": {
+        "name": "车辆"
+      },
+      "animal": {
+        "name": "动物"
+      },
+      "sound": {
+        "name": "声音"
+      },
+      "online": {
+        "name": "已连接"
+      }
+    },
+    "sensor": {
+      "recognized_face": {
+        "name": "识别到的人脸"
+      },
+      "recognized_plate": {
+        "name": "识别到的车牌"
+      },
+      "person_count": {
+        "name": "人数"
+      },
+      "vehicle_count": {
+        "name": "车辆数"
+      },
+      "animal_count": {
+        "name": "动物数"
+      }
+    },
+    "event": {
+      "alert": {
+        "name": "告警",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "person": "人",
+              "face_known": "已录入的人脸",
+              "face_unknown": "未录入的人脸",
+              "face_specific": "特定人脸",
+              "vehicle_any": "车辆",
+              "vehicle_known": "已录入的车辆",
+              "vehicle_unknown": "未录入的车辆",
+              "vehicle_specific": "特定车辆",
+              "animal_any": "动物",
+              "animal_specific": "所选动物",
+              "text_person": "符合描述的人",
+              "text_vehicle": "符合描述的车辆",
+              "text_animal": "符合描述的动物",
+              "sound": "声音"
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "last_alert": {
+        "name": "最近告警"
+      }
+    },
+    "update": {
+      "software": {
+        "name": "软件"
+      }
+    },
+    "switch": {
+      "detect": {
+        "name": "检测"
+      },
+      "push": {
+        "name": "手机通知"
+      }
+    }
+  },
+  "exceptions": {
+    "not_running": {
+      "message": "Litmus NVR 已停止。请启动后重试。"
+    },
+    "cannot_connect": {
+      "message": "无法连接到 Litmus NVR，请重试。"
+    }
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Litmus NVR",
+        "description": "Nhập địa chỉ của máy tính đang chạy Litmus NVR.",
+        "data": {
+          "host": "Máy chủ",
+          "port": "Cổng"
+        }
+      },
+      "credentials": {
+        "title": "Đăng nhập Litmus NVR",
+        "description": "Dùng tài khoản bạn đăng nhập tại http://{host}.",
+        "data": {
+          "username": "Tên đăng nhập",
+          "password": "Mật khẩu"
+        }
+      },
+      "reconfigure": {
+        "title": "Địa chỉ Litmus NVR",
+        "description": "Nhập địa chỉ mới của máy tính đang chạy Litmus NVR.",
+        "data": {
+          "host": "Máy chủ",
+          "port": "Cổng"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Đã tìm thấy Litmus NVR",
+        "description": "Thêm Litmus NVR tại {host}?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Kết nối thất bại",
+      "invalid_auth": "Xác thực không hợp lệ",
+      "too_many_attempts": "Thử quá nhiều lần. Hãy thử lại sau.",
+      "not_litmus": "Đây không phải là Litmus NVR.",
+      "update_required": "Hãy cập nhật Litmus NVR để dùng tích hợp này.",
+      "not_set_up": "Hãy hoàn tất thiết lập Litmus NVR trên thiết bị trước.",
+      "token_limit": "Quá nhiều kết nối. Hãy ngắt một kết nối không dùng trong Litmus NVR tại Cài đặt › Tích hợp.",
+      "unknown": "Lỗi không mong đợi"
+    },
+    "abort": {
+      "already_configured": "Thiết bị đã được cấu hình",
+      "reauth_successful": "Xác thực lại thành công",
+      "unique_id_mismatch": "Địa chỉ này giờ thuộc về một Litmus NVR khác.",
+      "wrong_device": "Địa chỉ này thuộc về một Litmus NVR khác.",
+      "reconfigure_successful": "Đã cập nhật địa chỉ."
+    },
+    "flow_title": "{name}"
+  },
+  "entity": {
+    "binary_sensor": {
+      "person": {
+        "name": "Người"
+      },
+      "vehicle": {
+        "name": "Phương tiện"
+      },
+      "animal": {
+        "name": "Động vật"
+      },
+      "sound": {
+        "name": "Âm thanh"
+      },
+      "online": {
+        "name": "Đã kết nối"
+      }
+    },
+    "sensor": {
+      "recognized_face": {
+        "name": "Khuôn mặt nhận diện được"
+      },
+      "recognized_plate": {
+        "name": "Biển số nhận diện được"
+      },
+      "person_count": {
+        "name": "Số người"
+      },
+      "vehicle_count": {
+        "name": "Số phương tiện"
+      },
+      "animal_count": {
+        "name": "Số động vật"
+      }
+    },
+    "event": {
+      "alert": {
+        "name": "Cảnh báo",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "person": "Người",
+              "face_known": "Khuôn mặt đã đăng ký",
+              "face_unknown": "Khuôn mặt chưa đăng ký",
+              "face_specific": "Khuôn mặt cụ thể",
+              "vehicle_any": "Phương tiện",
+              "vehicle_known": "Phương tiện đã đăng ký",
+              "vehicle_unknown": "Phương tiện chưa đăng ký",
+              "vehicle_specific": "Phương tiện cụ thể",
+              "animal_any": "Động vật",
+              "animal_specific": "Động vật đã chọn",
+              "text_person": "Người khớp mô tả",
+              "text_vehicle": "Phương tiện khớp mô tả",
+              "text_animal": "Động vật khớp mô tả",
+              "sound": "Âm thanh"
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "last_alert": {
+        "name": "Cảnh báo gần nhất"
+      }
+    },
+    "update": {
+      "software": {
+        "name": "Phần mềm"
+      }
+    },
+    "switch": {
+      "detect": {
+        "name": "Phát hiện"
+      },
+      "push": {
+        "name": "Thông báo trên điện thoại"
+      }
+    }
+  },
+  "exceptions": {
+    "not_running": {
+      "message": "Litmus NVR đã dừng. Hãy khởi động rồi thử lại."
+    },
+    "cannot_connect": {
+      "message": "Không thể kết nối với Litmus NVR. Hãy thử lại."
+    }
+  }
+}

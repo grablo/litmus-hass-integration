@@ -1,0 +1,139 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Litmus NVR",
+        "description": "Litmus NVR'ın çalıştığı bilgisayarın adresini girin.",
+        "data": {
+          "host": "Sunucu",
+          "port": "Bağlantı Noktası"
+        }
+      },
+      "credentials": {
+        "title": "Litmus NVR'da oturum açın",
+        "description": "http://{host} adresinde oturum açtığınız hesabı kullanın.",
+        "data": {
+          "username": "Kullanıcı Adı",
+          "password": "Şifre"
+        }
+      },
+      "reconfigure": {
+        "title": "Litmus NVR adresi",
+        "description": "Litmus NVR'ın çalıştığı bilgisayarın yeni adresini girin.",
+        "data": {
+          "host": "Sunucu",
+          "port": "Bağlantı Noktası"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Litmus NVR bulundu",
+        "description": "{host} adresindeki Litmus NVR eklensin mi?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Bağlanma hatası",
+      "invalid_auth": "Geçersiz kimlik doğrulama",
+      "too_many_attempts": "Çok fazla deneme yapıldı. Daha sonra tekrar deneyin.",
+      "not_litmus": "Bu bir Litmus NVR değil.",
+      "update_required": "Bu entegrasyonu kullanmak için Litmus NVR'ı güncelleyin.",
+      "not_set_up": "Önce cihazda Litmus NVR kurulumunu tamamlayın.",
+      "token_limit": "Çok fazla bağlantı var. Litmus NVR'da Ayarlar › Entegrasyonlar bölümünden kullanmadığınız bir bağlantıyı kesin.",
+      "unknown": "Beklenmeyen hata"
+    },
+    "abort": {
+      "already_configured": "Cihaz zaten yapılandırılmış",
+      "reauth_successful": "Yeniden kimlik doğrulama başarılı oldu",
+      "unique_id_mismatch": "Bu adres artık başka bir Litmus NVR'a ait.",
+      "wrong_device": "Bu adres başka bir Litmus NVR'a ait.",
+      "reconfigure_successful": "Adres güncellendi."
+    },
+    "flow_title": "{name}"
+  },
+  "entity": {
+    "binary_sensor": {
+      "person": {
+        "name": "Kişi"
+      },
+      "vehicle": {
+        "name": "Araç"
+      },
+      "animal": {
+        "name": "Hayvan"
+      },
+      "sound": {
+        "name": "Ses"
+      },
+      "online": {
+        "name": "Bağlı"
+      }
+    },
+    "sensor": {
+      "recognized_face": {
+        "name": "Tanınan yüz"
+      },
+      "recognized_plate": {
+        "name": "Tanınan plaka"
+      },
+      "person_count": {
+        "name": "Kişi sayısı"
+      },
+      "vehicle_count": {
+        "name": "Araç sayısı"
+      },
+      "animal_count": {
+        "name": "Hayvan sayısı"
+      }
+    },
+    "event": {
+      "alert": {
+        "name": "Uyarı",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "person": "Kişi",
+              "face_known": "Kayıtlı yüz",
+              "face_unknown": "Kayıtlı olmayan yüz",
+              "face_specific": "Belirli yüz",
+              "vehicle_any": "Araç",
+              "vehicle_known": "Kayıtlı araç",
+              "vehicle_unknown": "Kayıtlı olmayan araç",
+              "vehicle_specific": "Belirli araç",
+              "animal_any": "Hayvan",
+              "animal_specific": "Seçilen hayvan",
+              "text_person": "Açıklamaya uyan kişi",
+              "text_vehicle": "Açıklamaya uyan araç",
+              "text_animal": "Açıklamaya uyan hayvan",
+              "sound": "Ses"
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "last_alert": {
+        "name": "Son uyarı"
+      }
+    },
+    "update": {
+      "software": {
+        "name": "Yazılım"
+      }
+    },
+    "switch": {
+      "detect": {
+        "name": "Algılama"
+      },
+      "push": {
+        "name": "Telefon bildirimleri"
+      }
+    }
+  },
+  "exceptions": {
+    "not_running": {
+      "message": "Litmus NVR durduruldu. Başlatıp tekrar deneyin."
+    },
+    "cannot_connect": {
+      "message": "Litmus NVR'a ulaşılamadı. Tekrar deneyin."
+    }
+  }
+}

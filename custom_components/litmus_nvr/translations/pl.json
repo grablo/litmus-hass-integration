@@ -1,0 +1,139 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Litmus NVR",
+        "description": "Wpisz adres komputera, na którym działa Litmus NVR.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      },
+      "credentials": {
+        "title": "Zaloguj się do Litmus NVR",
+        "description": "Użyj konta, którym logujesz się na http://{host}.",
+        "data": {
+          "username": "Nazwa użytkownika",
+          "password": "Hasło"
+        }
+      },
+      "reconfigure": {
+        "title": "Adres Litmus NVR",
+        "description": "Wpisz nowy adres komputera, na którym działa Litmus NVR.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Znaleziono Litmus NVR",
+        "description": "Dodać Litmus NVR pod adresem {host}?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Nie można nawiązać połączenia",
+      "invalid_auth": "Niepoprawne uwierzytelnienie",
+      "too_many_attempts": "Zbyt wiele prób. Spróbuj ponownie później.",
+      "not_litmus": "To nie jest Litmus NVR.",
+      "update_required": "Zaktualizuj Litmus NVR, aby korzystać z tej integracji.",
+      "not_set_up": "Najpierw dokończ konfigurację Litmus NVR na urządzeniu.",
+      "token_limit": "Zbyt wiele połączeń. Rozłącz nieużywane połączenie w Litmus NVR w sekcji Ustawienia › Integracje.",
+      "unknown": "Nieoczekiwany błąd"
+    },
+    "abort": {
+      "already_configured": "Urządzenie jest już skonfigurowane",
+      "reauth_successful": "Ponowne uwierzytelnienie się powiodło",
+      "unique_id_mismatch": "Ten adres należy teraz do innego Litmus NVR.",
+      "wrong_device": "Ten adres należy do innego Litmus NVR.",
+      "reconfigure_successful": "Zaktualizowano adres."
+    },
+    "flow_title": "{name}"
+  },
+  "entity": {
+    "binary_sensor": {
+      "person": {
+        "name": "Osoba"
+      },
+      "vehicle": {
+        "name": "Pojazd"
+      },
+      "animal": {
+        "name": "Zwierzę"
+      },
+      "sound": {
+        "name": "Dźwięk"
+      },
+      "online": {
+        "name": "Połączono"
+      }
+    },
+    "sensor": {
+      "recognized_face": {
+        "name": "Rozpoznana twarz"
+      },
+      "recognized_plate": {
+        "name": "Rozpoznana tablica"
+      },
+      "person_count": {
+        "name": "Liczba osób"
+      },
+      "vehicle_count": {
+        "name": "Liczba pojazdów"
+      },
+      "animal_count": {
+        "name": "Liczba zwierząt"
+      }
+    },
+    "event": {
+      "alert": {
+        "name": "Powiadomienie",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "person": "Osoba",
+              "face_known": "Zarejestrowana twarz",
+              "face_unknown": "Niezarejestrowana twarz",
+              "face_specific": "Określona twarz",
+              "vehicle_any": "Pojazd",
+              "vehicle_known": "Zarejestrowany pojazd",
+              "vehicle_unknown": "Niezarejestrowany pojazd",
+              "vehicle_specific": "Określony pojazd",
+              "animal_any": "Zwierzę",
+              "animal_specific": "Wybrane zwierzę",
+              "text_person": "Osoba według opisu",
+              "text_vehicle": "Pojazd według opisu",
+              "text_animal": "Zwierzę według opisu",
+              "sound": "Dźwięk"
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "last_alert": {
+        "name": "Ostatnie powiadomienie"
+      }
+    },
+    "update": {
+      "software": {
+        "name": "Oprogramowanie"
+      }
+    },
+    "switch": {
+      "detect": {
+        "name": "Wykrywanie"
+      },
+      "push": {
+        "name": "Powiadomienia na telefon"
+      }
+    }
+  },
+  "exceptions": {
+    "not_running": {
+      "message": "Litmus NVR jest zatrzymany. Uruchom go i spróbuj ponownie."
+    },
+    "cannot_connect": {
+      "message": "Nie można połączyć się z Litmus NVR. Spróbuj ponownie."
+    }
+  }
+}

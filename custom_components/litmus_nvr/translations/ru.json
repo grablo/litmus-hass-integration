@@ -1,0 +1,139 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Litmus NVR",
+        "description": "Введите адрес компьютера, на котором работает Litmus NVR.",
+        "data": {
+          "host": "Хост",
+          "port": "Порт"
+        }
+      },
+      "credentials": {
+        "title": "Вход в Litmus NVR",
+        "description": "Используйте учетную запись, с которой вы входите на http://{host}.",
+        "data": {
+          "username": "Имя пользователя",
+          "password": "Пароль"
+        }
+      },
+      "reconfigure": {
+        "title": "Адрес Litmus NVR",
+        "description": "Введите новый адрес компьютера, на котором работает Litmus NVR.",
+        "data": {
+          "host": "Хост",
+          "port": "Порт"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Найден Litmus NVR",
+        "description": "Добавить Litmus NVR по адресу {host}?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Не удалось подключиться",
+      "invalid_auth": "Ошибка аутентификации",
+      "too_many_attempts": "Слишком много попыток. Повторите попытку позже.",
+      "not_litmus": "Это не Litmus NVR.",
+      "update_required": "Обновите Litmus NVR, чтобы использовать эту интеграцию.",
+      "not_set_up": "Сначала завершите настройку Litmus NVR на устройстве.",
+      "token_limit": "Слишком много подключений. Отключите неиспользуемое в Litmus NVR в разделе «Настройки › Интеграции».",
+      "unknown": "Непредвиденная ошибка"
+    },
+    "abort": {
+      "already_configured": "Это устройство уже добавлено в Home Assistant",
+      "reauth_successful": "Повторная аутентификация выполнена успешно",
+      "unique_id_mismatch": "Теперь по этому адресу находится другой Litmus NVR.",
+      "wrong_device": "По этому адресу находится другой Litmus NVR.",
+      "reconfigure_successful": "Адрес обновлен."
+    },
+    "flow_title": "{name}"
+  },
+  "entity": {
+    "binary_sensor": {
+      "person": {
+        "name": "Человек"
+      },
+      "vehicle": {
+        "name": "Автомобиль"
+      },
+      "animal": {
+        "name": "Животное"
+      },
+      "sound": {
+        "name": "Звук"
+      },
+      "online": {
+        "name": "Подключено"
+      }
+    },
+    "sensor": {
+      "recognized_face": {
+        "name": "Распознанное лицо"
+      },
+      "recognized_plate": {
+        "name": "Распознанный номер"
+      },
+      "person_count": {
+        "name": "Число людей"
+      },
+      "vehicle_count": {
+        "name": "Число автомобилей"
+      },
+      "animal_count": {
+        "name": "Число животных"
+      }
+    },
+    "event": {
+      "alert": {
+        "name": "Оповещение",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "person": "Человек",
+              "face_known": "Известное лицо",
+              "face_unknown": "Неизвестное лицо",
+              "face_specific": "Определенное лицо",
+              "vehicle_any": "Автомобиль",
+              "vehicle_known": "Известный автомобиль",
+              "vehicle_unknown": "Неизвестный автомобиль",
+              "vehicle_specific": "Определенный автомобиль",
+              "animal_any": "Животное",
+              "animal_specific": "Выбранное животное",
+              "text_person": "Человек по описанию",
+              "text_vehicle": "Автомобиль по описанию",
+              "text_animal": "Животное по описанию",
+              "sound": "Звук"
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "last_alert": {
+        "name": "Последнее оповещение"
+      }
+    },
+    "update": {
+      "software": {
+        "name": "Программное обеспечение"
+      }
+    },
+    "switch": {
+      "detect": {
+        "name": "Обнаружение"
+      },
+      "push": {
+        "name": "Уведомления на телефон"
+      }
+    }
+  },
+  "exceptions": {
+    "not_running": {
+      "message": "Litmus NVR остановлен. Запустите его и повторите попытку."
+    },
+    "cannot_connect": {
+      "message": "Не удалось подключиться к Litmus NVR. Повторите попытку."
+    }
+  }
+}

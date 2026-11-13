@@ -1,0 +1,139 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Litmus NVR",
+        "description": "Masukkan alamat komputer yang menjalankan Litmus NVR.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      },
+      "credentials": {
+        "title": "Masuk ke Litmus NVR",
+        "description": "Gunakan akun yang Anda pakai untuk masuk di http://{host}.",
+        "data": {
+          "username": "Nama Pengguna",
+          "password": "Kata Sandi"
+        }
+      },
+      "reconfigure": {
+        "title": "Alamat Litmus NVR",
+        "description": "Masukkan alamat baru komputer yang menjalankan Litmus NVR.",
+        "data": {
+          "host": "Host",
+          "port": "Port"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Litmus NVR ditemukan",
+        "description": "Tambahkan Litmus NVR di {host}?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Gagal terhubung",
+      "invalid_auth": "Autentikasi tidak valid",
+      "too_many_attempts": "Terlalu banyak percobaan. Coba lagi nanti.",
+      "not_litmus": "Ini bukan Litmus NVR.",
+      "update_required": "Perbarui Litmus NVR untuk menggunakan integrasi ini.",
+      "not_set_up": "Selesaikan dulu penyiapan Litmus NVR di perangkat.",
+      "token_limit": "Terlalu banyak koneksi. Putuskan koneksi yang tidak digunakan di Litmus NVR pada Pengaturan › Integrasi.",
+      "unknown": "Kesalahan tak terduga"
+    },
+    "abort": {
+      "already_configured": "Perangkat sudah dikonfigurasi",
+      "reauth_successful": "Autentikasi ulang berhasil",
+      "unique_id_mismatch": "Alamat ini sekarang milik Litmus NVR lain.",
+      "wrong_device": "Alamat ini milik Litmus NVR lain.",
+      "reconfigure_successful": "Alamat diperbarui."
+    },
+    "flow_title": "{name}"
+  },
+  "entity": {
+    "binary_sensor": {
+      "person": {
+        "name": "Orang"
+      },
+      "vehicle": {
+        "name": "Kendaraan"
+      },
+      "animal": {
+        "name": "Hewan"
+      },
+      "sound": {
+        "name": "Suara"
+      },
+      "online": {
+        "name": "Terhubung"
+      }
+    },
+    "sensor": {
+      "recognized_face": {
+        "name": "Wajah yang dikenali"
+      },
+      "recognized_plate": {
+        "name": "Pelat yang dikenali"
+      },
+      "person_count": {
+        "name": "Jumlah orang"
+      },
+      "vehicle_count": {
+        "name": "Jumlah kendaraan"
+      },
+      "animal_count": {
+        "name": "Jumlah hewan"
+      }
+    },
+    "event": {
+      "alert": {
+        "name": "Notifikasi",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "person": "Orang",
+              "face_known": "Wajah terdaftar",
+              "face_unknown": "Wajah tidak terdaftar",
+              "face_specific": "Wajah tertentu",
+              "vehicle_any": "Kendaraan",
+              "vehicle_known": "Kendaraan terdaftar",
+              "vehicle_unknown": "Kendaraan tidak terdaftar",
+              "vehicle_specific": "Kendaraan tertentu",
+              "animal_any": "Hewan",
+              "animal_specific": "Hewan yang dipilih",
+              "text_person": "Orang sesuai deskripsi",
+              "text_vehicle": "Kendaraan sesuai deskripsi",
+              "text_animal": "Hewan sesuai deskripsi",
+              "sound": "Suara"
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "last_alert": {
+        "name": "Notifikasi terakhir"
+      }
+    },
+    "update": {
+      "software": {
+        "name": "Perangkat lunak"
+      }
+    },
+    "switch": {
+      "detect": {
+        "name": "Deteksi"
+      },
+      "push": {
+        "name": "Notifikasi ponsel"
+      }
+    }
+  },
+  "exceptions": {
+    "not_running": {
+      "message": "Litmus NVR berhenti. Jalankan, lalu coba lagi."
+    },
+    "cannot_connect": {
+      "message": "Tidak dapat menjangkau Litmus NVR. Coba lagi."
+    }
+  }
+}

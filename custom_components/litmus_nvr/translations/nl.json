@@ -1,0 +1,139 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Litmus NVR",
+        "description": "Voer het adres in van de computer waarop Litmus NVR draait.",
+        "data": {
+          "host": "Host",
+          "port": "Poort"
+        }
+      },
+      "credentials": {
+        "title": "Inloggen bij Litmus NVR",
+        "description": "Gebruik het account waarmee je inlogt op http://{host}.",
+        "data": {
+          "username": "Gebruikersnaam",
+          "password": "Wachtwoord"
+        }
+      },
+      "reconfigure": {
+        "title": "Adres van Litmus NVR",
+        "description": "Voer het nieuwe adres in van de computer waarop Litmus NVR draait.",
+        "data": {
+          "host": "Host",
+          "port": "Poort"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Litmus NVR gevonden",
+        "description": "De Litmus NVR op {host} toevoegen?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Kan geen verbinding maken",
+      "invalid_auth": "Ongeldige authenticatie",
+      "too_many_attempts": "Te veel pogingen. Probeer het later opnieuw.",
+      "not_litmus": "Dit is geen Litmus NVR.",
+      "update_required": "Werk Litmus NVR bij om deze integratie te gebruiken.",
+      "not_set_up": "Rond eerst de configuratie van Litmus NVR op het apparaat af.",
+      "token_limit": "Te veel verbindingen. Verbreek in Litmus NVR onder Instellingen › Integraties een verbinding die je niet gebruikt.",
+      "unknown": "Onverwachte fout"
+    },
+    "abort": {
+      "already_configured": "Apparaat is al geconfigureerd",
+      "reauth_successful": "Herauthenticatie geslaagd",
+      "unique_id_mismatch": "Dit adres hoort nu bij een andere Litmus NVR.",
+      "wrong_device": "Dit adres hoort bij een andere Litmus NVR.",
+      "reconfigure_successful": "Adres bijgewerkt."
+    },
+    "flow_title": "{name}"
+  },
+  "entity": {
+    "binary_sensor": {
+      "person": {
+        "name": "Persoon"
+      },
+      "vehicle": {
+        "name": "Voertuig"
+      },
+      "animal": {
+        "name": "Dier"
+      },
+      "sound": {
+        "name": "Geluid"
+      },
+      "online": {
+        "name": "Verbonden"
+      }
+    },
+    "sensor": {
+      "recognized_face": {
+        "name": "Herkend gezicht"
+      },
+      "recognized_plate": {
+        "name": "Herkend kenteken"
+      },
+      "person_count": {
+        "name": "Aantal personen"
+      },
+      "vehicle_count": {
+        "name": "Aantal voertuigen"
+      },
+      "animal_count": {
+        "name": "Aantal dieren"
+      }
+    },
+    "event": {
+      "alert": {
+        "name": "Melding",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "person": "Persoon",
+              "face_known": "Geregistreerd gezicht",
+              "face_unknown": "Niet-geregistreerd gezicht",
+              "face_specific": "Specifiek gezicht",
+              "vehicle_any": "Voertuig",
+              "vehicle_known": "Geregistreerd voertuig",
+              "vehicle_unknown": "Niet-geregistreerd voertuig",
+              "vehicle_specific": "Specifiek voertuig",
+              "animal_any": "Dier",
+              "animal_specific": "Gekozen dier",
+              "text_person": "Persoon volgens beschrijving",
+              "text_vehicle": "Voertuig volgens beschrijving",
+              "text_animal": "Dier volgens beschrijving",
+              "sound": "Geluid"
+            }
+          }
+        }
+      }
+    },
+    "image": {
+      "last_alert": {
+        "name": "Laatste melding"
+      }
+    },
+    "update": {
+      "software": {
+        "name": "Software"
+      }
+    },
+    "switch": {
+      "detect": {
+        "name": "Detectie"
+      },
+      "push": {
+        "name": "Meldingen op je telefoon"
+      }
+    }
+  },
+  "exceptions": {
+    "not_running": {
+      "message": "Litmus NVR is gestopt. Start het en probeer het opnieuw."
+    },
+    "cannot_connect": {
+      "message": "Kan Litmus NVR niet bereiken. Probeer het opnieuw."
+    }
+  }
+}
