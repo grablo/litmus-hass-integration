@@ -159,6 +159,7 @@ class LitmusHub:
         eid = self.entry.entry_id
         if kind == "state":
             old_ids = {c.get("id") for c in self.state.get("cameras", [])}
+            old_classes = set(self.classes)
             self.state = data.get("data", {})
             self.available = True
             self._follow_renames()
@@ -166,6 +167,9 @@ class LitmusHub:
             new_ids = {c.get("id") for c in self.state.get("cameras", [])}
             if new_ids != old_ids and self.cameras_authoritative:
                 # Camera added or removed — reload so entities and devices follow (Frigate does the same on config change).
+                self.hass.config_entries.async_schedule_reload(eid)
+            elif set(self.classes) != old_classes and self.cameras_authoritative:
+                # Detection turned on or off in Litmus (person / vehicle / animal / sound) — reload so the sensors follow.
                 self.hass.config_entries.async_schedule_reload(eid)
             return
         if kind == "presence":

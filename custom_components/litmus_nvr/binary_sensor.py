@@ -16,7 +16,9 @@ from .hub import LitmusHub
 
 async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
     hub = entry.runtime_data
-    enabled = [c for c in CLASSES if c in hub.classes] or list(CLASSES)
+    # Only what this place detects (Litmus sends the detections that are turned on; "none" when only faces are).
+    # An NVR that sends no list at all (older 2.4 builds) gets all four, as before.
+    enabled = [c for c in CLASSES if c in hub.classes] if hub.classes else list(CLASSES)
     entities: list[BinarySensorEntity] = []
     for cam in hub.cameras:
         entities.extend(LitmusPresenceSensor(hub, cam["id"], cls) for cls in enabled)
