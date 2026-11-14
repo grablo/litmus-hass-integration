@@ -45,11 +45,12 @@ class LitmusPresenceSensor(LitmusCameraEntity, BinarySensorEntity):
         return bool(self._p.get("on"))
 
     @property
-    def extra_state_attributes(self) -> dict[str, object]:
-        attrs: dict[str, object] = {"count": int(self._p.get("count") or 0)}
+    def extra_state_attributes(self) -> dict[str, object] | None:
+        # No count here — the count sensor carries it. As an attribute it rewrote this sensor (a recorder row) every time the
+        # number of people changed while the state stayed "on"; Frigate's occupancy sensors carry no attributes either.
         if self.cls == "sound":
-            attrs["sound"] = self._p.get("name")
-        return attrs
+            return {"sound": self._p.get("name")}
+        return None
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
