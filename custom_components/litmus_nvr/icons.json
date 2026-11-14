@@ -1,0 +1,52 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "vehicle": {
+        "default": "mdi:car-off",
+        "state": {
+          "on": "mdi:car"
+        }
+      },
+      "animal": {
+        "default": "mdi:dog-side-off",
+        "state": {
+          "on": "mdi:dog-side"
+        }
+      },
+      "sound": {
+        "default": "mdi:ear-hearing-off",
+        "state": {
+          "on": "mdi:ear-hearing"
+        }
+      }
+    },
+    "sensor": {
+      "person_count": {
+        "default": "mdi:human"
+      },
+      "vehicle_count": {
+        "default": "mdi:car"
+      },
+      "animal_count": {
+        "default": "mdi:dog-side"
+      },
+      "recognized_face": {
+        "default": "mdi:face-recognition"
+      },
+      "recognized_plate": {
+        "default": "mdi:barcode-scan"
+      }
+    },
+    "switch": {
+      "detect": {
+        "default": "mdi:motion-sensor"
+      },
+      "record": {
+        "default": "mdi:filmstrip-box-multiple"
+      },
+      "push": {
+        "default": "mdi:message-badge"
+      }
+    }
+  }
+}
