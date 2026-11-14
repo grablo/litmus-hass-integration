@@ -71,6 +71,9 @@
       },
       "online": {
         "name": "연결됨"
+      },
+      "all": {
+        "name": "전체"
       }
     },
     "sensor": {
@@ -99,6 +102,30 @@
           "stopped": "정지됨",
           "error": "오류"
         }
+      },
+      "all_count": {
+        "name": "전체 수"
+      },
+      "uptime": {
+        "name": "가동 시간"
+      },
+      "cpu_usage": {
+        "name": "CPU 사용률"
+      },
+      "memory_usage": {
+        "name": "메모리 사용률"
+      },
+      "inference_speed": {
+        "name": "추론 속도"
+      },
+      "gpu_load": {
+        "name": "{gpu} GPU 사용률"
+      },
+      "camera_fps": {
+        "name": "카메라 fps"
+      },
+      "detection_fps": {
+        "name": "감지 fps"
       }
     },
     "event": {

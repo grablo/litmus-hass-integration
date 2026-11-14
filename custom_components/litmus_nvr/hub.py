@@ -18,7 +18,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
 from .api import LitmusAuthError, LitmusClient, LitmusConnectionError
-from .const import DOMAIN, SIGNAL_EVENT, SIGNAL_IDENTITY, SIGNAL_PRESENCE, SIGNAL_STATE
+from .const import DOMAIN, SIGNAL_EVENT, SIGNAL_IDENTITY, SIGNAL_PRESENCE, SIGNAL_STATE, SIGNAL_ZONE_PRESENCE
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -68,6 +68,21 @@ class LitmusHub:
             if cam.get("id") == camera_id:
                 return cam
         return None
+
+    def zone(self, camera_id: str, name: str) -> dict[str, Any] | None:
+        """One detection zone of a camera (Litmus 2.4.0 — zones are kept per camera)."""
+        for z in (self.camera(camera_id) or {}).get("zones") or []:
+            if isinstance(z, dict) and z.get("name") == name:
+                return z
+        return None
+
+    def _zone_signature(self) -> set[tuple[str, str]]:
+        return {
+            (str(cam.get("id")), str(z.get("name")))
+            for cam in self.state.get("cameras", [])
+            for z in cam.get("zones") or []
+            if isinstance(z, dict) and z.get("name")
+        }
 
     # ── lifecycle ──
     async def async_start(self) -> None:
@@ -160,6 +175,7 @@ class LitmusHub:
         if kind == "state":
             old_ids = {c.get("id") for c in self.state.get("cameras", [])}
             old_classes = set(self.classes)
+            old_zones = self._zone_signature()
             self.state = data.get("data", {})
             self.available = True
             self._follow_renames()
@@ -171,17 +187,29 @@ class LitmusHub:
             elif set(self.classes) != old_classes and self.cameras_authoritative:
                 # Detection turned on or off in Litmus (person / vehicle / animal / sound) — reload so the sensors follow.
                 self.hass.config_entries.async_schedule_reload(eid)
+            elif self._zone_signature() != old_zones and self.cameras_authoritative:
+                # Detection zone added, removed or renamed in Litmus — reload so the zone devices follow (Frigate: zones come from config).
+                self.hass.config_entries.async_schedule_reload(eid)
             return
         if kind == "presence":
             cam = self.camera(str(data.get("camera")))
             if cam is not None:
                 cls = str(data.get("class"))
-                cam.setdefault("presence", {})[cls] = {
+                entry = {
                     "on": bool(data.get("on")),
                     "count": int(data.get("count") or 0),
                     "name": data.get("name"),
                     "ts": data.get("ts"),
                 }
+                zone_name = data.get("zone")
+                if zone_name:
+                    # A detection zone (Litmus 2.4.0) — kept under the camera's zone; zone sensors listen on their own signal.
+                    z = self.zone(str(cam.get("id")), str(zone_name))
+                    if z is not None:
+                        z.setdefault("presence", {})[cls] = entry
+                        async_dispatcher_send(self.hass, SIGNAL_ZONE_PRESENCE.format(eid), cam.get("id"), str(zone_name), cls)
+                    return
+                cam.setdefault("presence", {})[cls] = entry
                 async_dispatcher_send(self.hass, SIGNAL_PRESENCE.format(eid), cam.get("id"), cls)
             return
         if kind == "identity":

@@ -15,6 +15,13 @@ API_VERSION = 1
 
 # Presence classes reported by the NVR (HomeHub.h kClass*).
 CLASSES = ("person", "vehicle", "animal", "sound")
+# Classes a detection zone reports (no sound — zones are areas of the picture).
+ZONE_CLASSES = ("person", "vehicle", "animal")
+# Frigate's artificial "all" object — every tracked object on a camera or in a zone (get_cameras_and_objects include_all).
+ALL = "all"
+
+# Performance stats poll (Frigate's stats coordinator: api/stats every 5 s).
+STATS_INTERVAL_SECONDS = 5
 
 # Alert kinds — the same ids as litmus-web spot/alert/recipeCatalog.ts.
 EVENT_TYPES = [
@@ -37,5 +44,6 @@ EVENT_TYPES = [
 # Dispatcher signals (formatted with the config entry id).
 SIGNAL_STATE = DOMAIN + "_state_{}"
 SIGNAL_PRESENCE = DOMAIN + "_presence_{}"
+SIGNAL_ZONE_PRESENCE = DOMAIN + "_zone_presence_{}"
 SIGNAL_IDENTITY = DOMAIN + "_identity_{}"
 SIGNAL_EVENT = DOMAIN + "_event_{}"

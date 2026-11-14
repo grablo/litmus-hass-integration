@@ -71,6 +71,9 @@
       },
       "online": {
         "name": "Connected"
+      },
+      "all": {
+        "name": "All"
       }
     },
     "sensor": {
@@ -99,6 +102,30 @@
           "stopped": "Stopped",
           "error": "Error"
         }
+      },
+      "all_count": {
+        "name": "All count"
+      },
+      "uptime": {
+        "name": "Uptime"
+      },
+      "cpu_usage": {
+        "name": "CPU usage"
+      },
+      "memory_usage": {
+        "name": "Memory usage"
+      },
+      "inference_speed": {
+        "name": "Inference speed"
+      },
+      "gpu_load": {
+        "name": "{gpu} GPU load"
+      },
+      "camera_fps": {
+        "name": "Camera fps"
+      },
+      "detection_fps": {
+        "name": "Detection fps"
       }
     },
     "event": {

@@ -50,6 +50,61 @@ class LitmusNotificationView(HomeAssistantView):
         return web.Response(body=body, content_type="image/jpeg", headers={"Cache-Control": "private, max-age=600"})
 
 
+async def _stream(request: web.Request, upstream, cache: str) -> web.StreamResponse:
+    """Pass an mp4 through with its Range headers (the player seeks)."""
+    headers = {
+        k: upstream.headers[k]
+        for k in ("Content-Type", "Content-Length", "Content-Range", "Accept-Ranges")
+        if k in upstream.headers
+    }
+    headers["Cache-Control"] = cache
+    resp = web.StreamResponse(status=upstream.status, headers=headers)
+    await resp.prepare(request)
+    if request.method != "HEAD":
+        async for chunk in upstream.content.iter_chunked(256 * 1024):
+            await resp.write(chunk)
+    await resp.write_eof()
+    return resp
+
+
+class LitmusNotificationClipView(HomeAssistantView):
+    """GET /api/litmus_nvr/notifications/{entry_id}/events/{event_id}/clip.mp4?exp=&sig= — the alert's recording.
+
+    Opens without a Home Assistant login, like Frigate's NotificationsProxyView serves notifications/<id>/clip.mp4, so a phone
+    notification can open it. Signed by the NVR exactly like the snapshot. 404 while the recording is still being written
+    (Frigate: has_clip false until the event ends).
+    """
+
+    url = "/api/litmus_nvr/notifications/{entry_id}/events/{event_id}/clip.mp4"
+    name = "api:litmus_nvr:notification_clip"
+    requires_auth = False
+
+    def __init__(self, hass: HomeAssistant) -> None:
+        self.hass = hass
+
+    async def head(self, request: web.Request, entry_id: str, event_id: str) -> web.StreamResponse:
+        return await self.get(request, entry_id, event_id)
+
+    async def get(self, request: web.Request, entry_id: str, event_id: str) -> web.StreamResponse:
+        entry = self.hass.config_entries.async_get_entry(entry_id)
+        if entry is None or entry.domain != DOMAIN or getattr(entry, "runtime_data", None) is None:
+            return web.Response(status=404)
+        exp = request.query.get("exp", "")
+        sig = request.query.get("sig", "")
+        if not (_EVENT_ID.fullmatch(event_id) and exp.isdigit() and _SIG.fullmatch(sig)):
+            return web.Response(status=401)
+        try:
+            upstream = await entry.runtime_data.client.open_event_clip(
+                f"events/{event_id}/clip.mp4?exp={exp}&sig={sig}", request.headers.get("Range")
+            )
+        except LitmusError:
+            return web.Response(status=502)
+        async with upstream:
+            if upstream.status not in (200, 206):
+                return web.Response(status=upstream.status if upstream.status in (403, 404, 416) else 502)
+            return await _stream(request, upstream, "private, max-age=600")
+
+
 _REC_ID = re.compile(r"[A-Za-z0-9_.-]{1,64}~[A-Za-z0-9_-]{1,64}~[0-9]{1,16}(\.[0-9]{1,6})?")   # ExtApi recordingId
 
 
@@ -83,18 +138,7 @@ class LitmusRecordingView(HomeAssistantView):
         async with upstream:
             if upstream.status not in (200, 206):
                 return web.Response(status=upstream.status if upstream.status in (404, 416) else 502)
-            headers = {
-                k: upstream.headers[k]
-                for k in ("Content-Type", "Content-Length", "Content-Range", "Accept-Ranges")
-                if k in upstream.headers
-            }
-            headers["Cache-Control"] = "private, max-age=3600"
-            resp = web.StreamResponse(status=upstream.status, headers=headers)
-            await resp.prepare(request)
-            async for chunk in upstream.content.iter_chunked(256 * 1024):
-                await resp.write(chunk)
-            await resp.write_eof()
-            return resp
+            return await _stream(request, upstream, "private, max-age=3600")
 
 
 _THUMB_KEYS = {"kind", "var", "t", "off", "box"}

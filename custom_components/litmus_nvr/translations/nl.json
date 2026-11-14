@@ -71,6 +71,9 @@
       },
       "online": {
         "name": "Verbonden"
+      },
+      "all": {
+        "name": "Alles"
       }
     },
     "sensor": {
@@ -99,6 +102,30 @@
           "stopped": "Gestopt",
           "error": "Fout"
         }
+      },
+      "all_count": {
+        "name": "Totaal aantal"
+      },
+      "uptime": {
+        "name": "Uptime"
+      },
+      "cpu_usage": {
+        "name": "CPU-gebruik"
+      },
+      "memory_usage": {
+        "name": "Geheugengebruik"
+      },
+      "inference_speed": {
+        "name": "Inferentiesnelheid"
+      },
+      "gpu_load": {
+        "name": "{gpu} GPU-belasting"
+      },
+      "camera_fps": {
+        "name": "Camera-fps"
+      },
+      "detection_fps": {
+        "name": "Detectie-fps"
       }
     },
     "event": {

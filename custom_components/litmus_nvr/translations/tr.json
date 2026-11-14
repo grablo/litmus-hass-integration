@@ -71,6 +71,9 @@
       },
       "online": {
         "name": "Bağlı"
+      },
+      "all": {
+        "name": "Tümü"
       }
     },
     "sensor": {
@@ -99,6 +102,30 @@
           "stopped": "Durduruldu",
           "error": "Hata"
         }
+      },
+      "all_count": {
+        "name": "Toplam sayı"
+      },
+      "uptime": {
+        "name": "Çalışma süresi"
+      },
+      "cpu_usage": {
+        "name": "CPU kullanımı"
+      },
+      "memory_usage": {
+        "name": "Bellek kullanımı"
+      },
+      "inference_speed": {
+        "name": "Çıkarım hızı"
+      },
+      "gpu_load": {
+        "name": "{gpu} GPU yükü"
+      },
+      "camera_fps": {
+        "name": "Kamera FPS"
+      },
+      "detection_fps": {
+        "name": "Algılama FPS"
       }
     },
     "event": {

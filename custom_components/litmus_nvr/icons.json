@@ -30,6 +30,21 @@
       "animal_count": {
         "default": "mdi:dog-side"
       },
+      "all_count": {
+        "default": "mdi:shield-alert"
+      },
+      "camera_fps": {
+        "default": "mdi:speedometer"
+      },
+      "detection_fps": {
+        "default": "mdi:speedometer"
+      },
+      "inference_speed": {
+        "default": "mdi:speedometer"
+      },
+      "gpu_load": {
+        "default": "mdi:speedometer"
+      },
       "recognized_face": {
         "default": "mdi:face-recognition"
       },

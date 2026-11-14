@@ -87,3 +87,42 @@ class LitmusCameraEntity(LitmusEntity):
         else:
             info["via_device"] = (DOMAIN, self.hub.device_id)
         return info
+
+
+def zone_identifier(hub: LitmusHub, camera_id: str, zone: str) -> str:
+    return f"{hub.device_id}:{camera_id}:zone:{zone}"
+
+
+class LitmusZoneEntity(LitmusEntity):
+    """Entity bound to one detection zone — a device of its own, like Frigate's zone devices (via the NVR device)."""
+
+    def __init__(self, hub: LitmusHub, camera_id: str, zone: str) -> None:
+        super().__init__(hub)
+        self.camera_id = camera_id
+        self.zone = zone
+
+    @property
+    def z(self) -> dict[str, Any]:
+        return self.hub.zone(self.camera_id, self.zone) or {}
+
+    @property
+    def available(self) -> bool:
+        return self.hub.available and self.hub.zone(self.camera_id, self.zone) is not None
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        info = DeviceInfo(
+            identifiers={(DOMAIN, zone_identifier(self.hub, self.camera_id, self.zone))},
+            name=self.zone,
+            manufacturer=MANUFACTURER,
+            model=f"{NAME} zone",
+        )
+        lookup = getattr(dr, "async_get_device_id_by_identifier", None)
+        if lookup is not None:
+            try:
+                info["via_device_id"] = lookup(self.hass, (DOMAIN, self.hub.device_id), config_entry_id=self.hub.entry.entry_id)
+            except ValueError:
+                pass
+        else:
+            info["via_device"] = (DOMAIN, self.hub.device_id)
+        return info

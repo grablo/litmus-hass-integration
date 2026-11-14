@@ -71,6 +71,9 @@
       },
       "online": {
         "name": "Подключено"
+      },
+      "all": {
+        "name": "Все"
       }
     },
     "sensor": {
@@ -99,6 +102,30 @@
           "stopped": "Остановлен",
           "error": "Ошибка"
         }
+      },
+      "all_count": {
+        "name": "Общее число"
+      },
+      "uptime": {
+        "name": "Время работы"
+      },
+      "cpu_usage": {
+        "name": "Загрузка ЦП"
+      },
+      "memory_usage": {
+        "name": "Использование памяти"
+      },
+      "inference_speed": {
+        "name": "Скорость инференса"
+      },
+      "gpu_load": {
+        "name": "Загрузка GPU {gpu}"
+      },
+      "camera_fps": {
+        "name": "FPS камеры"
+      },
+      "detection_fps": {
+        "name": "FPS обнаружения"
       }
     },
     "event": {

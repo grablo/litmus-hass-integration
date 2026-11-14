@@ -267,6 +267,26 @@ class LitmusClient:
             except _BODY_ERRORS as err:
                 raise LitmusConnectionError(str(err)) from err
 
+    async def stats(self) -> dict[str, Any]:
+        """Performance numbers (2.4.0) — the shape of Frigate's /api/stats: service.uptime, cpu_usages, gpu_usages, detectors, cameras."""
+        data = await self._json("GET", "stats")
+        if not isinstance(data, dict):
+            raise LitmusConnectionError("unexpected response")
+        return data
+
+    async def open_event_clip(self, path: str, range_header: str | None) -> aiohttp.ClientResponse:
+        """Open an alert clip — path = 'events/<id>/clip.mp4?exp=..&sig=..' as sent by the NVR (the signature is the credential,
+        like the notification snapshot). Range passed through. The caller streams and releases the response."""
+        headers = {"Range": range_header} if range_header else {}
+        try:
+            return await self._session.get(
+                f"{self._base}/{path}",
+                headers=headers,
+                timeout=aiohttp.ClientTimeout(total=None, sock_connect=10, sock_read=60),
+            )
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            raise LitmusConnectionError(str(err)) from err
+
     async def event_snapshot(self, path: str, *, with_token: bool = False) -> tuple[int, bytes]:
         """path = 'events/<id>/snapshot.jpg?exp=..&sig=..' as sent by the NVR.
 

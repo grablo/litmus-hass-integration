@@ -1,6 +1,11 @@
-"""Presence per camera and class — Frigate's occupancy/sound binary sensors (off 30 s after last seen, decided by the NVR)."""
+"""Presence per camera and class — Frigate's occupancy/sound binary sensors (off 30 s after last seen, decided by the NVR).
+
+Also Frigate's zone occupancy (one device per detection zone) and its artificial "all" object (any class present).
+"""
 
 from __future__ import annotations
+
+from typing import Any
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass, BinarySensorEntity
 from homeassistant.core import HomeAssistant, callback
@@ -9,20 +14,45 @@ from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import LitmusConfigEntry
-from .const import CLASSES, SIGNAL_PRESENCE
-from .entity import LitmusCameraEntity, unique_id
+from .const import ALL, CLASSES, SIGNAL_PRESENCE, SIGNAL_ZONE_PRESENCE, ZONE_CLASSES
+from .entity import LitmusCameraEntity, LitmusZoneEntity, unique_id
 from .hub import LitmusHub
+
+
+def enabled_classes(hub: LitmusHub, classes: tuple[str, ...]) -> list[str]:
+    """Only what this place detects (Litmus sends the detections that are turned on; "none" when only faces are).
+    An NVR that sends no list at all (older 2.4 builds) gets every class, as before."""
+    return [c for c in classes if c in hub.classes] if hub.classes else list(classes)
+
+
+def all_presence(presence: dict[str, Any], classes: list[str]) -> tuple[bool, int]:
+    """Frigate's "all" object: on while any class is present, count = the sum (only classes that are on — a class off keeps
+    its last count in the NVR's message)."""
+    on = False
+    count = 0
+    for cls in classes:
+        p = presence.get(cls) or {}
+        if p.get("on"):
+            on = True
+            count += int(p.get("count") or 0)
+    return on, count
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
     hub = entry.runtime_data
-    # Only what this place detects (Litmus sends the detections that are turned on; "none" when only faces are).
-    # An NVR that sends no list at all (older 2.4 builds) gets all four, as before.
-    enabled = [c for c in CLASSES if c in hub.classes] if hub.classes else list(CLASSES)
+    enabled = enabled_classes(hub, CLASSES)
+    objects = enabled_classes(hub, ZONE_CLASSES)
     entities: list[BinarySensorEntity] = []
     for cam in hub.cameras:
         entities.extend(LitmusPresenceSensor(hub, cam["id"], cls) for cls in enabled)
+        if objects:   # Frigate adds "all" to every camera and zone (get_cameras_zones_and_objects include_all)
+            entities.append(LitmusAllPresenceSensor(hub, cam["id"], objects))
         entities.append(LitmusOnlineSensor(hub, cam["id"]))
+        for z in cam.get("zones") or []:
+            if not isinstance(z, dict) or not z.get("name") or not objects:
+                continue
+            entities.extend(LitmusZonePresenceSensor(hub, cam["id"], str(z["name"]), cls) for cls in objects)
+            entities.append(LitmusZoneAllPresenceSensor(hub, cam["id"], str(z["name"]), objects))
     async_add_entities(entities)
 
 
@@ -61,6 +91,87 @@ class LitmusPresenceSensor(LitmusCameraEntity, BinarySensorEntity):
     @callback
     def _presence(self, camera_id: str, cls: str) -> None:
         if camera_id == self.camera_id and cls == self.cls:
+            self.async_write_ha_state()
+
+
+class LitmusAllPresenceSensor(LitmusCameraEntity, BinarySensorEntity):
+    """Anything (person, vehicle or animal) present on a camera — Frigate's "All occupancy"."""
+
+    _attr_device_class = BinarySensorDeviceClass.OCCUPANCY
+    _attr_translation_key = ALL
+
+    def __init__(self, hub: LitmusHub, camera_id: str, classes: list[str]) -> None:
+        super().__init__(hub, camera_id)
+        self.classes = classes
+        self._attr_unique_id = unique_id(hub, "presence", f"{camera_id}_{ALL}")
+
+    @property
+    def is_on(self) -> bool:
+        return all_presence(self.cam.get("presence") or {}, self.classes)[0]
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        self.async_on_remove(
+            async_dispatcher_connect(self.hass, SIGNAL_PRESENCE.format(self.hub.entry.entry_id), self._presence)
+        )
+
+    @callback
+    def _presence(self, camera_id: str, cls: str) -> None:
+        if camera_id == self.camera_id and cls in self.classes:
+            self.async_write_ha_state()
+
+
+class LitmusZonePresenceSensor(LitmusZoneEntity, BinarySensorEntity):
+    """Person / vehicle / animal inside a detection zone (Frigate zone occupancy)."""
+
+    _attr_device_class = BinarySensorDeviceClass.OCCUPANCY
+
+    def __init__(self, hub: LitmusHub, camera_id: str, zone: str, cls: str) -> None:
+        super().__init__(hub, camera_id, zone)
+        self.cls = cls
+        self._attr_unique_id = unique_id(hub, "zone_presence", f"{camera_id}_{zone}_{cls}")
+        self._attr_translation_key = cls
+
+    @property
+    def is_on(self) -> bool:
+        return bool(((self.z.get("presence") or {}).get(self.cls) or {}).get("on"))
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        self.async_on_remove(
+            async_dispatcher_connect(self.hass, SIGNAL_ZONE_PRESENCE.format(self.hub.entry.entry_id), self._presence)
+        )
+
+    @callback
+    def _presence(self, camera_id: str, zone: str, cls: str) -> None:
+        if camera_id == self.camera_id and zone == self.zone and cls == self.cls:
+            self.async_write_ha_state()
+
+
+class LitmusZoneAllPresenceSensor(LitmusZoneEntity, BinarySensorEntity):
+    """Anything inside a detection zone."""
+
+    _attr_device_class = BinarySensorDeviceClass.OCCUPANCY
+    _attr_translation_key = ALL
+
+    def __init__(self, hub: LitmusHub, camera_id: str, zone: str, classes: list[str]) -> None:
+        super().__init__(hub, camera_id, zone)
+        self.classes = classes
+        self._attr_unique_id = unique_id(hub, "zone_presence", f"{camera_id}_{zone}_{ALL}")
+
+    @property
+    def is_on(self) -> bool:
+        return all_presence(self.z.get("presence") or {}, self.classes)[0]
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        self.async_on_remove(
+            async_dispatcher_connect(self.hass, SIGNAL_ZONE_PRESENCE.format(self.hub.entry.entry_id), self._presence)
+        )
+
+    @callback
+    def _presence(self, camera_id: str, zone: str, cls: str) -> None:
+        if camera_id == self.camera_id and zone == self.zone and cls in self.classes:
             self.async_write_ha_state()
 
 

@@ -14,9 +14,10 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import LitmusAuthError, LitmusClient, LitmusConnectionError
 from .const import CONF_ADDON_SLUG, CONF_TOKEN, DOMAIN, MANUFACTURER, NAME
+from .entity import zone_identifier
 from .hub import LitmusHub
 from .panel import async_add_panel, async_remove_panel
-from .views import LitmusNotificationView, LitmusRecordingView, LitmusThumbView
+from .views import LitmusNotificationClipView, LitmusNotificationView, LitmusRecordingView, LitmusThumbView
 
 PLATFORMS: list[Platform] = [
     Platform.CAMERA,
@@ -56,6 +57,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry) -> bo
     # `async_remove_device` like Frigate — `async_update_device(remove_config_entry_id=…)` is deprecated (breaks in HA 2027.8).
     if hub.cameras_authoritative:
         keep = {(DOMAIN, hub.device_id)} | {(DOMAIN, f"{hub.device_id}:{cam.get('id')}") for cam in hub.cameras}
+        # Detection zones are devices too (Frigate) — a zone removed in Litmus goes the same way.
+        keep |= {
+            (DOMAIN, zone_identifier(hub, str(cam.get("id")), str(z.get("name"))))
+            for cam in hub.cameras
+            for z in cam.get("zones") or []
+            if isinstance(z, dict) and z.get("name")
+        }
         for device in dr.async_entries_for_config_entry(dev_reg, entry.entry_id):
             if not device.identifiers & keep:
                 dev_reg.async_remove_device(device.id)
@@ -63,6 +71,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry) -> bo
     domain_data = hass.data.setdefault(DOMAIN, {})
     if not domain_data.get("view_registered"):
         hass.http.register_view(LitmusNotificationView(hass))
+        hass.http.register_view(LitmusNotificationClipView(hass))
         hass.http.register_view(LitmusRecordingView(hass))
         hass.http.register_view(LitmusThumbView(hass))
         domain_data["view_registered"] = True

@@ -71,6 +71,9 @@
       },
       "online": {
         "name": "Terhubung"
+      },
+      "all": {
+        "name": "Semua"
       }
     },
     "sensor": {
@@ -99,6 +102,30 @@
           "stopped": "Berhenti",
           "error": "Kesalahan"
         }
+      },
+      "all_count": {
+        "name": "Jumlah semua"
+      },
+      "uptime": {
+        "name": "Waktu aktif"
+      },
+      "cpu_usage": {
+        "name": "Penggunaan CPU"
+      },
+      "memory_usage": {
+        "name": "Penggunaan memori"
+      },
+      "inference_speed": {
+        "name": "Kecepatan inferensi"
+      },
+      "gpu_load": {
+        "name": "Beban GPU {gpu}"
+      },
+      "camera_fps": {
+        "name": "FPS kamera"
+      },
+      "detection_fps": {
+        "name": "FPS deteksi"
       }
     },
     "event": {

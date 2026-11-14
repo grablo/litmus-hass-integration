@@ -44,6 +44,7 @@ class LitmusAlertEvent(LitmusCameraEntity, EventEntity):
         if kind not in EVENT_TYPES:
             return
         snapshot = ev.get("snapshot")
+        clip = ev.get("clip")   # 2.4.0 — absent from older NVRs
         # Litmus alerts carry no detection confidence today (the NVR sends 0) — leave it out rather than show a false 0.0
         # that an automation could compare against (Frigate's score is a real confidence).
         score = ev.get("score")
@@ -64,6 +65,9 @@ class LitmusAlertEvent(LitmusCameraEntity, EventEntity):
                 "snapshot": (
                     f"/api/litmus_nvr/notifications/{self.hub.entry.entry_id}/{snapshot}" if snapshot else None
                 ),
+                # The recording of that moment, same signed link (Frigate notifications/<id>/clip.mp4). 404 until the recording
+                # is finished — a notification's tap opens it later.
+                "clip": f"/api/litmus_nvr/notifications/{self.hub.entry.entry_id}/{clip}" if clip else None,
             },
         )
         self.async_write_ha_state()

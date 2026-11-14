@@ -71,6 +71,9 @@
       },
       "online": {
         "name": "已連線"
+      },
+      "all": {
+        "name": "全部"
       }
     },
     "sensor": {
@@ -99,6 +102,30 @@
           "stopped": "已停止",
           "error": "錯誤"
         }
+      },
+      "all_count": {
+        "name": "總數"
+      },
+      "uptime": {
+        "name": "運作時間"
+      },
+      "cpu_usage": {
+        "name": "CPU 使用率"
+      },
+      "memory_usage": {
+        "name": "記憶體使用率"
+      },
+      "inference_speed": {
+        "name": "推論速度"
+      },
+      "gpu_load": {
+        "name": "{gpu} GPU 負載"
+      },
+      "camera_fps": {
+        "name": "攝影機 fps"
+      },
+      "detection_fps": {
+        "name": "偵測 fps"
       }
     },
     "event": {

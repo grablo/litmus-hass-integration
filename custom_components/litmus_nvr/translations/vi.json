@@ -71,6 +71,9 @@
       },
       "online": {
         "name": "Đã kết nối"
+      },
+      "all": {
+        "name": "Tất cả"
       }
     },
     "sensor": {
@@ -99,6 +102,30 @@
           "stopped": "Đã dừng",
           "error": "Lỗi"
         }
+      },
+      "all_count": {
+        "name": "Tổng số"
+      },
+      "uptime": {
+        "name": "Thời gian hoạt động"
+      },
+      "cpu_usage": {
+        "name": "Mức dùng CPU"
+      },
+      "memory_usage": {
+        "name": "Mức dùng bộ nhớ"
+      },
+      "inference_speed": {
+        "name": "Tốc độ suy luận"
+      },
+      "gpu_load": {
+        "name": "Tải GPU {gpu}"
+      },
+      "camera_fps": {
+        "name": "FPS camera"
+      },
+      "detection_fps": {
+        "name": "FPS phát hiện"
       }
     },
     "event": {

@@ -41,6 +41,14 @@ blueprint:
             - text_vehicle
             - text_animal
             - sound
+    base_url:
+      name: Home Assistant address (to open the recording)
+      description: >-
+        The address you open Home Assistant with on your phone, such as https://example.ui.nabu.casa.
+        Tapping the notification then plays the recording of that moment. Leave empty to open the app instead.
+      default: ""
+      selector:
+        text:
 
 mode: parallel
 max: 10
@@ -52,7 +60,13 @@ triggers:
 variables:
   kinds: !input kinds
   notify_device: !input notify_device
+  base_url: !input base_url
   attrs: "{{ trigger.to_state.attributes }}"
+  # Tap opens the signed clip (Frigate blueprints: tap_action → …/notifications/<id>/clip.mp4). Companion app keys: url (iOS),
+  # clickAction (Android). Empty when no address is set or the NVR sent no clip — the tap then opens the app as before.
+  clip_url: >-
+    {{ (base_url | trim | regex_replace('/+$', '')) ~ attrs.clip
+       if (base_url | trim | length > 0 and attrs.clip is string and attrs.clip | length > 0) else '' }}
 
 conditions:
   - "{{ trigger.to_state.state not in ['unknown', 'unavailable'] }}"
@@ -62,26 +76,18 @@ conditions:
   - "{{ kinds | length == 0 or attrs.event_type in kinds }}"
 
 actions:
-  # Alerts without a picture (sound) must not send an image URL — a missing attribute would render as the text "None".
-  - if:
-      - "{{ attrs.snapshot is string and attrs.snapshot | length > 0 }}"
-    then:
-      - action: "notify.mobile_app_{{ device_attr(notify_device, 'name') | slugify }}"
-        data:
-          title: "{{ attrs.title or state_attr(trigger.entity_id, 'friendly_name') }}"
-          message: "{{ attrs.message or attrs.event_type }}"
-          data:
-            image: "{{ attrs.snapshot }}"
-            attachment:
-              url: "{{ attrs.snapshot }}"
-              content-type: jpeg
-            tag: "{{ attrs.event_id }}"
-            group: "litmus-nvr"
-    else:
-      - action: "notify.mobile_app_{{ device_attr(notify_device, 'name') | slugify }}"
-        data:
-          title: "{{ attrs.title or state_attr(trigger.entity_id, 'friendly_name') }}"
-          message: "{{ attrs.message or attrs.event_type }}"
-          data:
-            tag: "{{ attrs.event_id }}"
-            group: "litmus-nvr"
+  # Keys are added only when they have a value: alerts without a picture (sound) must not send an image URL (a missing attribute
+  # renders as the text "None"), and without a clip the tap keeps opening the app as it always did.
+  - action: "notify.mobile_app_{{ device_attr(notify_device, 'name') | slugify }}"
+    data:
+      title: "{{ attrs.title or state_attr(trigger.entity_id, 'friendly_name') }}"
+      message: "{{ attrs.message or attrs.event_type }}"
+      data: >-
+        {% set d = {'tag': attrs.event_id, 'group': 'litmus-nvr'} %}
+        {% if attrs.snapshot is string and attrs.snapshot | length > 0 %}
+          {% set d = dict(d, image=attrs.snapshot, attachment={'url': attrs.snapshot, 'content-type': 'jpeg'}) %}
+        {% endif %}
+        {% if clip_url %}
+          {% set d = dict(d, url=clip_url, clickAction=clip_url) %}
+        {% endif %}
+        {{ d }}
