@@ -44,6 +44,10 @@ class LitmusAlertEvent(LitmusCameraEntity, EventEntity):
         if kind not in EVENT_TYPES:
             return
         snapshot = ev.get("snapshot")
+        # Litmus alerts carry no detection confidence today (the NVR sends 0) — leave it out rather than show a false 0.0
+        # that an automation could compare against (Frigate's score is a real confidence).
+        score = ev.get("score")
+        has_score = isinstance(score, (int, float)) and score > 0
         self._trigger_event(
             kind,
             {
@@ -54,7 +58,7 @@ class LitmusAlertEvent(LitmusCameraEntity, EventEntity):
                 "names": ev.get("names") or [],
                 "plate": ev.get("plate"),
                 "label": ev.get("label"),
-                "score": ev.get("score"),
+                **({"score": score} if has_score else {}),
                 "sound": ev.get("sound"),
                 # Opens without a Home Assistant login (signed, 7 days) — use it in notifications.
                 "snapshot": (
