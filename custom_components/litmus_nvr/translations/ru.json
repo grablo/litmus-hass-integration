@@ -28,6 +28,10 @@
       "zeroconf_confirm": {
         "title": "Найден Litmus NVR",
         "description": "Добавить Litmus NVR по адресу {host}?"
+      },
+      "hassio_confirm": {
+        "title": "Найден Litmus NVR",
+        "description": "Добавить дополнение Litmus NVR?"
       }
     },
     "error": {

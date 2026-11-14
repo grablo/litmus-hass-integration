@@ -28,6 +28,10 @@
       "zeroconf_confirm": {
         "title": "Đã tìm thấy Litmus NVR",
         "description": "Thêm Litmus NVR tại {host}?"
+      },
+      "hassio_confirm": {
+        "title": "Đã tìm thấy Litmus NVR",
+        "description": "Thêm tiện ích bổ sung Litmus NVR?"
       }
     },
     "error": {

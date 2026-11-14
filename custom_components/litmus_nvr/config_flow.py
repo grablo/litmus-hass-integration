@@ -12,6 +12,7 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.service_info.hassio import HassioServiceInfo
 from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 
 from .api import (
@@ -121,6 +122,29 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="zeroconf_confirm", description_placeholders={"host": f"{self._host}:{self._port}"}
         )
+
+    async def async_step_hassio(self, discovery_info: HassioServiceInfo) -> ConfigFlowResult:
+        """Litmus NVR running as a Home Assistant add-on announced itself through the Supervisor (add-on `discovery: [litmus_nvr]`).
+        The add-on image has no mDNS responder, so this is how it shows up under Discovered — the way Mosquitto or Z-Wave JS add-ons do.
+        Sent only while Home Assistant is turned on in Litmus. config = {host: add-on hostname, port, id: Litmus device id}."""
+        cfg = discovery_info.config or {}
+        device_id = str(cfg.get("id") or "")
+        host = str(cfg.get("host") or "")
+        if not device_id or not host:
+            return self.async_abort(reason="not_litmus")
+        port = int(cfg.get("port") or DEFAULT_PORT)
+        # The entry's unique id is the Litmus device id, not the discovery uuid — removing the discovery (Home Assistant turned off in
+        # Litmus) must not remove the entry the user added (homeassistant/components/hassio/discovery.py async_process_del).
+        await self.async_set_unique_id(device_id)
+        self._abort_if_unique_id_configured(updates={CONF_HOST: host, CONF_PORT: port})
+        self._host, self._port, self._device_id = host, port, device_id
+        self.context["title_placeholders"] = {"name": NAME}
+        return await self.async_step_hassio_confirm()
+
+    async def async_step_hassio_confirm(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        if user_input is not None:
+            return await self.async_step_credentials()
+        return self.async_show_form(step_id="hassio_confirm")
 
     def _token_name(self) -> str:
         """Name shown in Litmus › Settings › Integrations — the HA home name tells several Home Assistants apart."""

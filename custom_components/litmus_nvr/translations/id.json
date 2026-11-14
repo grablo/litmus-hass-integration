@@ -28,6 +28,10 @@
       "zeroconf_confirm": {
         "title": "Litmus NVR ditemukan",
         "description": "Tambahkan Litmus NVR di {host}?"
+      },
+      "hassio_confirm": {
+        "title": "Litmus NVR ditemukan",
+        "description": "Tambahkan add-on Litmus NVR?"
       }
     },
     "error": {

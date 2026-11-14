@@ -28,6 +28,10 @@
       "zeroconf_confirm": {
         "title": "พบ Litmus NVR",
         "description": "เพิ่ม Litmus NVR ที่ {host} หรือไม่"
+      },
+      "hassio_confirm": {
+        "title": "พบ Litmus NVR",
+        "description": "เพิ่มส่วนเสริม Litmus NVR หรือไม่"
       }
     },
     "error": {

@@ -28,6 +28,10 @@
       "zeroconf_confirm": {
         "title": "Litmus NVR bulundu",
         "description": "{host} adresindeki Litmus NVR eklensin mi?"
+      },
+      "hassio_confirm": {
+        "title": "Litmus NVR bulundu",
+        "description": "Litmus NVR eklentisi eklensin mi?"
       }
     },
     "error": {

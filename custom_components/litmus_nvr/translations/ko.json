@@ -28,6 +28,10 @@
       "zeroconf_confirm": {
         "title": "Litmus NVR을 찾았습니다",
         "description": "{host}의 Litmus NVR을 추가할까요?"
+      },
+      "hassio_confirm": {
+        "title": "Litmus NVR을 찾았습니다",
+        "description": "Litmus NVR 애드온을 추가할까요?"
       }
     },
     "error": {
