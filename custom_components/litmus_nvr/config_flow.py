@@ -25,7 +25,7 @@ from .api import (
     LitmusUpdateRequiredError,
     LitmusTokenLimitError,
 )
-from .const import API_VERSION, CONF_DEVICE_ID, CONF_TOKEN, DEFAULT_PORT, DOMAIN, NAME
+from .const import API_VERSION, CONF_ADDON_SLUG, CONF_DEVICE_ID, CONF_TOKEN, DEFAULT_PORT, DOMAIN, NAME
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -61,6 +61,7 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
         self._host: str | None = None
         self._port: int = DEFAULT_PORT
         self._device_id: str | None = None
+        self._addon_slug: str = ""
 
     async def _probe(self, host: str, port: int) -> dict[str, Any]:
         client = LitmusClient(async_get_clientsession(self.hass), host, port)
@@ -135,8 +136,12 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
         port = int(cfg.get("port") or DEFAULT_PORT)
         # The entry's unique id is the Litmus device id, not the discovery uuid — removing the discovery (Home Assistant turned off in
         # Litmus) must not remove the entry the user added (homeassistant/components/hassio/discovery.py async_process_del).
+        # The add-on's slug — the sidebar opens its screen through ingress inside Home Assistant (the add-on hostname resolves only
+        # inside HAOS, so the browser cannot open http://<hostname>:8128 — 2026-11-14 HAOS 18.4 test). An entry added by address
+        # before gets it too (same device id).
+        self._addon_slug = str(discovery_info.slug or "")
         await self.async_set_unique_id(device_id)
-        self._abort_if_unique_id_configured(updates={CONF_HOST: host, CONF_PORT: port})
+        self._abort_if_unique_id_configured(updates={CONF_HOST: host, CONF_PORT: port, CONF_ADDON_SLUG: self._addon_slug})
         self._host, self._port, self._device_id = host, port, device_id
         self.context["title_placeholders"] = {"name": NAME}
         return await self.async_step_hassio_confirm()
@@ -178,6 +183,8 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = "cannot_connect"
             else:
                 data = {CONF_HOST: self._host, CONF_PORT: self._port, CONF_TOKEN: token, CONF_DEVICE_ID: self._device_id}
+                if self._addon_slug:
+                    data[CONF_ADDON_SLUG] = self._addon_slug
                 if self.source == "reauth":
                     entry = self._get_reauth_entry()
                     old = entry.data.get(CONF_TOKEN)

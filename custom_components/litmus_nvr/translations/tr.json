@@ -88,6 +88,17 @@
       },
       "animal_count": {
         "name": "Hayvan sayısı"
+      },
+      "status": {
+        "name": "Durum",
+        "state": {
+          "running": "Çalışıyor",
+          "applying": "Ayarlar uygulanıyor",
+          "starting": "Başlatılıyor",
+          "stopping": "Durduruluyor",
+          "stopped": "Durduruldu",
+          "error": "Hata"
+        }
       }
     },
     "event": {

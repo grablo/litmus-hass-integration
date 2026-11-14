@@ -27,6 +27,20 @@ class LitmusNvrPanel extends HTMLElement {
 
   _render() {
     if (!this._panel || !this._hass) return;
+    /*
+     * The NVR runs as a Home Assistant add-on — open its screen through ingress, inside Home Assistant (no second sign-in, works from
+     * any browser and remotely). Its address is the add-on hostname, which only resolves inside HAOS (2026-11-14 HAOS 18.4 test).
+     * Home Assistant 2026 shows add-ons under /app/<slug>/ingress; older releases under /hassio/ingress/<slug>.
+     */
+    const addon = this._panel.config && this._panel.config.addon;
+    if (addon) {
+      const path = this._hass.panels && this._hass.panels.app ? `/app/${addon}/ingress` : `/hassio/ingress/${addon}`;
+      if (window.location.pathname !== path) {
+        window.history.replaceState(null, "", path);
+        window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: true } }));
+      }
+      return;
+    }
     const url = (this._panel.config && this._panel.config.url) || "";
     const key = `${url}|${!!this._narrow}|${this._hass.language}`;
     if (this._key === key) {

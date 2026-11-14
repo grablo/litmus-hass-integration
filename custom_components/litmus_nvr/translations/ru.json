@@ -88,6 +88,17 @@
       },
       "animal_count": {
         "name": "Число животных"
+      },
+      "status": {
+        "name": "Состояние",
+        "state": {
+          "running": "Работает",
+          "applying": "Применение настроек",
+          "starting": "Запуск",
+          "stopping": "Остановка",
+          "stopped": "Остановлен",
+          "error": "Ошибка"
+        }
       }
     },
     "event": {

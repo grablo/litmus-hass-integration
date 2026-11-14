@@ -9,6 +9,7 @@ MANUFACTURER = "Litmus"
 DEFAULT_PORT = 8128
 CONF_TOKEN = "token"
 CONF_DEVICE_ID = "device_id"
+CONF_ADDON_SLUG = "addon_slug"   # set when found through the Supervisor (HA add-on) — the sidebar opens its ingress page
 
 API_VERSION = 1
 

@@ -88,6 +88,17 @@
       },
       "animal_count": {
         "name": "動物數"
+      },
+      "status": {
+        "name": "狀態",
+        "state": {
+          "running": "執行中",
+          "applying": "正在套用設定",
+          "starting": "正在啟動",
+          "stopping": "正在停止",
+          "stopped": "已停止",
+          "error": "錯誤"
+        }
       }
     },
     "event": {

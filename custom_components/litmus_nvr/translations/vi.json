@@ -88,6 +88,17 @@
       },
       "animal_count": {
         "name": "Số động vật"
+      },
+      "status": {
+        "name": "Trạng thái",
+        "state": {
+          "running": "Đang chạy",
+          "applying": "Đang áp dụng cài đặt",
+          "starting": "Đang khởi động",
+          "stopping": "Đang dừng",
+          "stopped": "Đã dừng",
+          "error": "Lỗi"
+        }
       }
     },
     "event": {

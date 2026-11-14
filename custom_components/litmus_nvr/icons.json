@@ -35,6 +35,16 @@
       },
       "recognized_plate": {
         "default": "mdi:barcode-scan"
+      },
+      "status": {
+        "default": "mdi:cctv",
+        "state": {
+          "applying": "mdi:cog-sync",
+          "starting": "mdi:play-circle-outline",
+          "stopping": "mdi:stop-circle-outline",
+          "stopped": "mdi:stop-circle",
+          "error": "mdi:alert-circle"
+        }
       }
     },
     "switch": {

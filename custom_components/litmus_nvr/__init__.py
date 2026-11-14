@@ -13,7 +13,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import LitmusAuthError, LitmusClient, LitmusConnectionError
-from .const import CONF_TOKEN, DOMAIN, MANUFACTURER, NAME
+from .const import CONF_ADDON_SLUG, CONF_TOKEN, DOMAIN, MANUFACTURER, NAME
 from .hub import LitmusHub
 from .panel import async_add_panel, async_remove_panel
 from .views import LitmusNotificationView, LitmusRecordingView, LitmusThumbView
@@ -72,7 +72,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry) -> bo
     # the place name tells them apart.
     several = len(hass.config_entries.async_entries(DOMAIN)) > 1
     title = f"{NAME} · {hub.device.get('name')}" if several and hub.device.get("name") else NAME
-    await async_add_panel(hass, hub.device_id, entry.data[CONF_HOST], entry.data[CONF_PORT], title)
+    await async_add_panel(hass, hub.device_id, entry.data[CONF_HOST], entry.data[CONF_PORT], title, entry.data.get(CONF_ADDON_SLUG, ""))
     return True
 
 

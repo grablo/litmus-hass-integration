@@ -35,7 +35,8 @@ def panel_path(device_id: str) -> str:
     return f"litmus-nvr-{device_id[:6].lower()}"
 
 
-async def async_add_panel(hass: HomeAssistant, device_id: str, host: str, port: int, title: str) -> None:
+async def async_add_panel(hass: HomeAssistant, device_id: str, host: str, port: int, title: str, addon_slug: str = "") -> None:
+    """addon_slug: the NVR runs as a Home Assistant add-on — the panel opens its ingress page instead of http://host:port."""
     if not hass.data.get(_STATIC_KEY):
         await hass.http.async_register_static_paths([StaticPathConfig(_JS_URL, str(_JS_PATH), True)])
         hass.data[_STATIC_KEY] = True
@@ -54,7 +55,7 @@ async def async_add_panel(hass: HomeAssistant, device_id: str, host: str, port: 
         sidebar_title=title,
         sidebar_icon=_ICON,
         module_url=f"{_JS_URL}?v={_JS_VERSION}",
-        config={"url": f"http://{url_host}:{port}/"},
+        config={"url": f"http://{url_host}:{port}/", **({"addon": addon_slug} if addon_slug else {})},
         require_admin=False,
     )
 

@@ -88,6 +88,17 @@
       },
       "animal_count": {
         "name": "Numero di animali"
+      },
+      "status": {
+        "name": "Stato",
+        "state": {
+          "running": "In esecuzione",
+          "applying": "Applicazione delle impostazioni",
+          "starting": "Avvio in corso",
+          "stopping": "Arresto in corso",
+          "stopped": "Arrestato",
+          "error": "Errore"
+        }
       }
     },
     "event": {

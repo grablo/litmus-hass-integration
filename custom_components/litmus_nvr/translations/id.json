@@ -88,6 +88,17 @@
       },
       "animal_count": {
         "name": "Jumlah hewan"
+      },
+      "status": {
+        "name": "Status",
+        "state": {
+          "running": "Berjalan",
+          "applying": "Menerapkan pengaturan",
+          "starting": "Memulai",
+          "stopping": "Menghentikan",
+          "stopped": "Berhenti",
+          "error": "Kesalahan"
+        }
       }
     },
     "event": {

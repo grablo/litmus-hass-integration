@@ -88,6 +88,17 @@
       },
       "animal_count": {
         "name": "Aantal dieren"
+      },
+      "status": {
+        "name": "Status",
+        "state": {
+          "running": "Actief",
+          "applying": "Instellingen toepassen",
+          "starting": "Starten",
+          "stopping": "Stoppen",
+          "stopped": "Gestopt",
+          "error": "Fout"
+        }
       }
     },
     "event": {
