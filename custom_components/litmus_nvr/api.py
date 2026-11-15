@@ -12,6 +12,11 @@ import aiohttp
 _BODY_ERRORS = (aiohttp.ClientError, asyncio.TimeoutError, ValueError, KeyError, TypeError)
 
 
+def _describe(err: BaseException) -> str:
+    """A timeout has an empty message (str(TimeoutError()) == "") — name the error type so the log says what happened."""
+    return str(err) or type(err).__name__
+
+
 class LitmusError(Exception):
     """Base error."""
 
@@ -84,7 +89,7 @@ class LitmusClient:
                 **kwargs,
             )
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-            raise LitmusConnectionError(str(err)) from err
+            raise LitmusConnectionError(_describe(err)) from err
         if resp.status == 401:
             # The NVR rejects a bad token with INVALID_TOKEN (and a bad password with BAD_CREDENTIALS). A plain UNAUTHORIZED comes from
             # its local server instead: the integration is turned off in Litmus (or it is older than 2.4.0). That is not a bad token —
@@ -129,7 +134,7 @@ class LitmusClient:
         try:
             resp = await self._session.get(f"{self._base}/info", timeout=aiohttp.ClientTimeout(total=10))
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-            raise LitmusConnectionError(str(err)) from err
+            raise LitmusConnectionError(_describe(err)) from err
         async with resp:
             try:
                 data = await resp.json(content_type=None)
@@ -197,7 +202,7 @@ class LitmusClient:
                 timeout=aiohttp.ClientTimeout(total=None, sock_connect=10, sock_read=60),
             )
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-            raise LitmusConnectionError(str(err)) from err
+            raise LitmusConnectionError(_describe(err)) from err
         return resp
 
     async def cards(self, kind: str, days: int = 30, limit: int = 100, from_ms: int | None = None, to_ms: int | None = None) -> list[dict[str, Any]]:
@@ -265,7 +270,7 @@ class LitmusClient:
             try:
                 return await resp.read()
             except _BODY_ERRORS as err:
-                raise LitmusConnectionError(str(err)) from err
+                raise LitmusConnectionError(_describe(err)) from err
 
     async def stats(self) -> dict[str, Any]:
         """Performance numbers (2.4.0) — the shape of Frigate's /api/stats: service.uptime, cpu_usages, gpu_usages, detectors, cameras."""
@@ -285,7 +290,7 @@ class LitmusClient:
                 timeout=aiohttp.ClientTimeout(total=None, sock_connect=10, sock_read=60),
             )
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-            raise LitmusConnectionError(str(err)) from err
+            raise LitmusConnectionError(_describe(err)) from err
 
     async def event_snapshot(self, path: str, *, with_token: bool = False) -> tuple[int, bytes]:
         """path = 'events/<id>/snapshot.jpg?exp=..&sig=..' as sent by the NVR.
@@ -300,12 +305,12 @@ class LitmusClient:
                 timeout=aiohttp.ClientTimeout(total=10),
             )
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-            raise LitmusConnectionError(str(err)) from err
+            raise LitmusConnectionError(_describe(err)) from err
         async with resp:
             try:
                 return resp.status, await resp.read()
             except _BODY_ERRORS as err:
-                raise LitmusConnectionError(str(err)) from err
+                raise LitmusConnectionError(_describe(err)) from err
 
     async def webrtc_offer(
         self, camera_id: str, offer_sdp: str, session_id: str, ice_servers: list[dict[str, Any]] | None = None
@@ -342,6 +347,6 @@ class LitmusClient:
                 # info() raises LitmusUpdateRequiredError / LitmusNotEnabledError / LitmusConnectionError when the API is not there.
                 await self.info()
                 raise LitmusAuthError("unauthorized") from err
-            raise LitmusConnectionError(str(err)) from err
+            raise LitmusConnectionError(_describe(err)) from err
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-            raise LitmusConnectionError(str(err)) from err
+            raise LitmusConnectionError(_describe(err)) from err

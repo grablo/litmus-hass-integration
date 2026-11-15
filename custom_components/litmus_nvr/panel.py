@@ -37,13 +37,15 @@ def panel_path(device_id: str) -> str:
 
 async def async_add_panel(hass: HomeAssistant, device_id: str, host: str, port: int, title: str, addon_slug: str = "") -> None:
     """addon_slug: the NVR runs as a Home Assistant add-on — the panel opens its ingress page instead of http://host:port."""
+    # Mark before awaiting: several NVRs set up concurrently at startup, and a second registration of the same route raises
+    # (aiohttp "Added route will never be executed") — which failed that NVR's setup.
     if not hass.data.get(_STATIC_KEY):
-        await hass.http.async_register_static_paths([StaticPathConfig(_JS_URL, str(_JS_PATH), True)])
         hass.data[_STATIC_KEY] = True
+        await hass.http.async_register_static_paths([StaticPathConfig(_JS_URL, str(_JS_PATH), True)])
     if not hass.data.get(_ICONSET_KEY):
+        hass.data[_ICONSET_KEY] = True
         await hass.http.async_register_static_paths([StaticPathConfig(_ICONSET_URL, str(_ICONSET_PATH), True)])
         frontend.add_extra_js_url(hass, f"{_ICONSET_URL}?v={_ICONSET_VERSION}")
-        hass.data[_ICONSET_KEY] = True
     url_host = f"[{host}]" if ":" in host and not host.startswith("[") else host
     path = panel_path(device_id)
     if path in hass.data.get(frontend.DATA_PANELS, {}):

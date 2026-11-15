@@ -19,6 +19,7 @@ from .api import (
     LitmusAuthError,
     LitmusClient,
     LitmusConnectionError,
+    LitmusError,
     LitmusNotSetUpError,
     LitmusThrottledError,
     LitmusNotEnabledError,
@@ -156,6 +157,15 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
         home = (self.hass.config.location_name or "").strip()
         return f"Home Assistant ({home[:40]})" if home and home != "Home" else "Home Assistant"
 
+    async def _place_name(self, token: str) -> str:
+        """The entry is titled with the NVR's place name (like ESPHome and Shelly title theirs with the device name) so several NVRs
+        tell apart in Settings › Devices & services. Best effort — the name is not needed to set the entry up."""
+        try:
+            state = await LitmusClient(async_get_clientsession(self.hass), self._host, self._port, token).state()
+        except LitmusError:
+            return ""
+        return str((state.get("device") or {}).get("name") or "").strip()
+
     async def async_step_credentials(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
@@ -192,7 +202,7 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
                         # Revoke the old token so tokens do not pile up to the NVR's limit (it is usually already invalid).
                         await LitmusClient(async_get_clientsession(self.hass), self._host, self._port, old).delete_own_token()
                     return self.async_update_reload_and_abort(entry, data_updates=data)
-                return self.async_create_entry(title=NAME, data=data)
+                return self.async_create_entry(title=await self._place_name(token) or NAME, data=data)
         schema = vol.Schema({vol.Required(CONF_USERNAME): str, vol.Required(CONF_PASSWORD): str})
         return self.async_show_form(
             step_id="credentials",

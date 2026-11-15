@@ -5,7 +5,7 @@ Design: litmus-web docs/LITMUS_HOME_INTEGRATION.md §6 (modelled on the Frigate 
 
 from __future__ import annotations
 
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
@@ -77,12 +77,28 @@ async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry) -> bo
         domain_data["view_registered"] = True
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    # Sidebar entry that opens the NVR's own screen (Frigate's add-on puts its UI in the sidebar the same way). With several NVRs
-    # the place name tells them apart.
-    several = len(hass.config_entries.async_entries(DOMAIN)) > 1
-    title = f"{NAME} · {hub.device.get('name')}" if several and hub.device.get("name") else NAME
-    await async_add_panel(hass, hub.device_id, entry.data[CONF_HOST], entry.data[CONF_PORT], title, entry.data.get(CONF_ADDON_SLUG, ""))
+    # Sidebar entry that opens the NVR's own screen (Frigate's add-on puts its UI in the sidebar the same way).
+    await _refresh_panels(hass, setting_up=entry)
     return True
+
+
+async def _refresh_panels(hass: HomeAssistant, setting_up: ConfigEntry | None = None, leaving: ConfigEntry | None = None) -> None:
+    """(Re)title every loaded NVR's sidebar entry. With several NVRs the place name tells them apart — so adding or removing one
+    re-titles the others too (the first NVR's entry was titled while it was alone)."""
+    entries = [e for e in hass.config_entries.async_entries(DOMAIN) if e is not leaving]
+    # NVRs set up together at startup are all still in progress — count those too, or each would think it is alone.
+    several = sum(e.state in (ConfigEntryState.LOADED, ConfigEntryState.SETUP_IN_PROGRESS) for e in entries) > 1
+    hubs = [
+        e.runtime_data
+        for e in entries
+        # Only NVRs that are set up — a failed setup (NotReady, auth) leaves runtime_data behind but has no panel.
+        if (e is setting_up or e.state is ConfigEntryState.LOADED) and isinstance(getattr(e, "runtime_data", None), LitmusHub)
+    ]
+    for hub in hubs:
+        name = hub.device.get("name")
+        title = f"{NAME} · {name}" if several and name else NAME
+        data = hub.entry.data
+        await async_add_panel(hass, hub.device_id, data[CONF_HOST], data[CONF_PORT], title, data.get(CONF_ADDON_SLUG, ""))
 
 
 async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -97,4 +113,5 @@ async def async_unload_entry(hass: HomeAssistant, entry: LitmusConfigEntry) -> b
     if unloaded:
         async_remove_panel(hass, entry.runtime_data.device_id)
         await entry.runtime_data.async_stop()
+        await _refresh_panels(hass, leaving=entry)
     return unloaded
