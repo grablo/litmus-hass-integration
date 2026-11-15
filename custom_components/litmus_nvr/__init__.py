@@ -94,10 +94,14 @@ async def _refresh_panels(hass: HomeAssistant, setting_up: ConfigEntry | None = 
         # Only NVRs that are set up — a failed setup (NotReady, auth) leaves runtime_data behind but has no panel.
         if (e is setting_up or e.state is ConfigEntryState.LOADED) and isinstance(getattr(e, "runtime_data", None), LitmusHub)
     ]
+    # Every new NVR starts with the same place name ("내 CCTV" / "My CCTV") — when two share one, the address tells them apart.
+    names = [hub.device.get("name") for hub in hubs]
     for hub in hubs:
         name = hub.device.get("name")
-        title = f"{NAME} · {name}" if several and name else NAME
         data = hub.entry.data
+        title = f"{NAME} · {name}" if several and name else NAME
+        if several and name and names.count(name) > 1:
+            title = f"{title} ({data[CONF_HOST]})"
         await async_add_panel(hass, hub.device_id, data[CONF_HOST], data[CONF_PORT], title, data.get(CONF_ADDON_SLUG, ""))
 
 
