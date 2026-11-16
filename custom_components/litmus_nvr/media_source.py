@@ -97,8 +97,9 @@ class LitmusMediaSource(MediaSource):
             return self._kind_folders(parts[0], parts[2])
         if len(parts) == 4 and parts[1] == "kind" and parts[2] in KINDS:
             return await self._kind_node(parts[0], parts[2], parts[3])
-        if len(parts) == 4 and parts[1] == "card" and parts[2] in KINDS and parts[3].isdigit():
-            return await self._card_node(parts[0], parts[2], int(parts[3]))
+        if len(parts) in (4, 5) and parts[1] == "card" and parts[2] in KINDS and parts[3].isdigit():
+            # 5th part = the folder the card was listed in — the card opens over that same window (its count was taken there)
+            return await self._card_node(parts[0], parts[2], int(parts[3]), parts[4] if len(parts) == 5 else "")
         raise Unresolvable("Unknown media item")
 
     # ── nodes ──
@@ -155,15 +156,15 @@ class LitmusMediaSource(MediaSource):
     async def _kind_node(self, entry_id: str, kind: str, sub: str) -> BrowseMediaSource:
         hub = self._hub(entry_id)
         try:
-            if sub in ("frequent", "plate"):
+            window = self._window(sub)
+            if window is None:
                 cards = await hub.client.cards(kind, DAYS, 500)
                 if sub == "frequent":
                     cards = sorted((c for c in cards if int(c.get("count") or 0) >= 2), key=lambda c: -int(c.get("count") or 0))[:200]
                 else:
                     cards = [c for c in cards if c.get("plate")][:200]
             else:
-                start = dt_util.start_of_local_day(datetime.fromisoformat(sub).date())
-                cards = await hub.client.cards(kind, DAYS, 200, _ms(start), _ms(start + timedelta(days=1)))
+                cards = await hub.client.cards(kind, DAYS, 200, *window)
         except ValueError as err:
             raise Unresolvable("Bad folder") from err
         except LitmusError as err:
@@ -179,7 +180,7 @@ class LitmusMediaSource(MediaSource):
             children.append(
                 BrowseMediaSource(
                     domain=DOMAIN,
-                    identifier=f"{entry_id}/card/{kind}/{int(c['id'])}",
+                    identifier=f"{entry_id}/card/{kind}/{int(c['id'])}/{sub}",
                     media_class=MediaClass.DIRECTORY,
                     media_content_type=MediaType.VIDEO,
                     title=title,
@@ -192,18 +193,34 @@ class LitmusMediaSource(MediaSource):
         node.children_media_class = MediaClass.DIRECTORY
         return node
 
-    async def _card_node(self, entry_id: str, kind: str, card_id: int) -> BrowseMediaSource:
+    @staticmethod
+    def _window(sub: str) -> tuple[int, int] | None:
+        """The window of a kind sub-folder: a day folder (YYYY-MM-DD, local day) → (from_ms, to_ms); 「Seen often」·「Plate read」·
+        none → None (the last DAYS days). Listing and opening a card both use it — a card's count and its rows come from one window.
+        Raises ValueError for a malformed day."""
+        if sub in ("", "frequent", "plate"):
+            return None
+        start = dt_util.start_of_local_day(datetime.fromisoformat(sub).date())
+        return _ms(start), _ms(start + timedelta(days=1))
+
+    async def _card_node(self, entry_id: str, kind: str, card_id: int, sub: str = "") -> BrowseMediaSource:
+        """One row per stay (Litmus folds a card's appearances by camera the way it counts them — 2.4.0 NVR), over the window the card
+        was listed in. Before, a 「Today」 card counted today's stays but opened 30 days of raw appearances (5× → 9 rows, 2026-11-16)."""
         hub = self._hub(entry_id)
         try:
-            apps = await hub.client.appearances(kind, card_id, DAYS, 200)
+            window = self._window(sub)
+            apps = await hub.client.appearances(kind, card_id, DAYS, 200, *(window or ()))
+        except ValueError as err:
+            raise Unresolvable("Bad folder") from err
         except LitmusError as err:
             raise Unresolvable(f"Litmus NVR is not reachable: {err}") from err
+        here = f"{entry_id}/card/{kind}/{card_id}" + (f"/{sub}" if sub else "")
         children = []
         for a in apps:
             t = dt_util.as_local(dt_util.utc_from_timestamp(int(a.get("first") or 0) / 1000))
             title = " · ".join(x for x in (t.strftime("%m/%d %H:%M:%S"), a.get("camera_name") or "", a.get("plate") or "") if x)
             rec = a.get("recording")
-            ident = f"{entry_id}/rec/{rec}/{int(a.get('offset_ms') or 0)}" if rec else f"{entry_id}/card/{kind}/{card_id}"
+            ident = f"{entry_id}/rec/{rec}/{int(a.get('offset_ms') or 0)}" if rec else here
             children.append(
                 BrowseMediaSource(
                     domain=DOMAIN,
@@ -217,7 +234,7 @@ class LitmusMediaSource(MediaSource):
                 )
             )
         titles = KIND_TITLES["ko" if (self.hass.config.language or "").startswith("ko") else "en"]
-        node = self._folder(f"{entry_id}/card/{kind}/{card_id}", titles[kind], children)
+        node = self._folder(here, titles[kind], children)
         node.children_media_class = MediaClass.VIDEO
         return node
 

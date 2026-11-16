@@ -202,7 +202,12 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
                         # Revoke the old token so tokens do not pile up to the NVR's limit (it is usually already invalid).
                         await LitmusClient(async_get_clientsession(self.hass), self._host, self._port, old).delete_own_token()
                     return self.async_update_reload_and_abort(entry, data_updates=data)
-                return self.async_create_entry(title=await self._place_name(token) or NAME, data=data)
+                title = await self._place_name(token) or NAME
+                if any(e.title == title for e in self._async_current_entries(include_ignore=False)):
+                    # Two NVRs with the default place name (「My CCTV」) look the same in Devices & services — add the address,
+                    # the same rule as the sidebar title (__init__._refresh_panels).
+                    title = f"{title} ({self._host})"
+                return self.async_create_entry(title=title, data=data)
         schema = vol.Schema({vol.Required(CONF_USERNAME): str, vol.Required(CONF_PASSWORD): str})
         return self.async_show_form(
             step_id="credentials",

@@ -215,9 +215,14 @@ class LitmusClient:
         items = data.get("cards") if isinstance(data, dict) else None
         return [i for i in items if isinstance(i, dict) and i.get("id")] if isinstance(items, list) else []
 
-    async def appearances(self, kind: str, card_id: int, days: int = 30, limit: int = 100) -> list[dict[str, Any]]:
-        """One card's appearances, newest first: [{camera, camera_name, first, last, thumb, recording?, offset_ms?}]."""
-        data = await self._json("GET", f"cards/{_seg(kind)}/{int(card_id)}/appearances", params={"days": str(days), "limit": str(limit)})
+    async def appearances(self, kind: str, card_id: int, days: int = 30, limit: int = 100, from_ms: int | None = None,
+                          to_ms: int | None = None) -> list[dict[str, Any]]:
+        """One card's stays on each camera, newest first: [{camera, camera_name, first, last, appearances, thumb, recording?, offset_ms?}].
+        from_ms/to_ms — the same window the card was listed in (its count was taken there)."""
+        params = {"days": str(days), "limit": str(limit)}
+        if from_ms is not None and to_ms is not None:
+            params.update({"from": str(from_ms), "to": str(to_ms)})
+        data = await self._json("GET", f"cards/{_seg(kind)}/{int(card_id)}/appearances", params=params)
         items = data.get("appearances") if isinstance(data, dict) else None
         return [i for i in items if isinstance(i, dict)] if isinstance(items, list) else []
 
