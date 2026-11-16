@@ -65,8 +65,8 @@ class LitmusAlertEvent(LitmusCameraEntity, EventEntity):
                 "snapshot": (
                     f"/api/litmus_nvr/notifications/{self.hub.entry.entry_id}/{snapshot}" if snapshot else None
                 ),
-                # The recording of that moment, same signed link (Frigate notifications/<id>/clip.mp4). 404 until the recording
-                # is finished — a notification's tap opens it later.
+                # The recording of that event, same signed link (Frigate notifications/<id>/clip.mp4). While the event is still going on it
+                # plays what has been recorded so far (Frigate event_clip: end = now); after it ends, the whole event.
                 "clip": f"/api/litmus_nvr/notifications/{self.hub.entry.entry_id}/{clip}" if clip else None,
             },
         )
