@@ -189,7 +189,7 @@
       "message": "Turn on Home Assistant in Litmus NVR › Settings › Integrations. If you don't see it, update Litmus NVR."
     },
     "setup_unreachable": {
-      "message": "Litmus NVR ({address}) — Failed to connect"
+      "message": "Litmus NVR ({address}): Failed to connect"
     }
   }
 }

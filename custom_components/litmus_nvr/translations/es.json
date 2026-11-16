@@ -189,7 +189,7 @@
       "message": "Activa Home Assistant en Litmus NVR › Ajustes › Integraciones. Si no lo ves, actualiza Litmus NVR."
     },
     "setup_unreachable": {
-      "message": "Litmus NVR ({address}) — No se pudo conectar"
+      "message": "Litmus NVR ({address}): No se pudo conectar"
     }
   }
 }

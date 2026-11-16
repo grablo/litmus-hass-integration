@@ -189,7 +189,7 @@
       "message": "请在 Litmus NVR 的“设置 › 集成”中开启 Home Assistant。如果没有此项，请更新 Litmus NVR。"
     },
     "setup_unreachable": {
-      "message": "Litmus NVR ({address}) — 连接失败"
+      "message": "Litmus NVR ({address}): 连接失败"
     }
   }
 }

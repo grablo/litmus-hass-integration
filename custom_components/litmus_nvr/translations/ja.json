@@ -189,7 +189,7 @@
       "message": "Litmus NVR の 設定 › 連携 で Home Assistant をオンにしてください。表示されない場合は Litmus NVR をアップデートしてください。"
     },
     "setup_unreachable": {
-      "message": "Litmus NVR ({address}) — 接続に失敗しました"
+      "message": "Litmus NVR ({address}): 接続に失敗しました"
     }
   }
 }

@@ -189,7 +189,7 @@
       "message": "Bật Home Assistant trong Litmus NVR › Cài đặt › Tích hợp. Nếu không thấy, hãy cập nhật Litmus NVR."
     },
     "setup_unreachable": {
-      "message": "Litmus NVR ({address}) — Kết nối thất bại"
+      "message": "Litmus NVR ({address}): Kết nối thất bại"
     }
   }
 }

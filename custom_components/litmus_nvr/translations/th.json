@@ -189,7 +189,7 @@
       "message": "เปิด Home Assistant ใน Litmus NVR › การตั้งค่า › การเชื่อมต่อ หากไม่พบ ให้อัปเดต Litmus NVR"
     },
     "setup_unreachable": {
-      "message": "Litmus NVR ({address}) — การเชื่อมต่อล้มเหลว"
+      "message": "Litmus NVR ({address}): การเชื่อมต่อล้มเหลว"
     }
   }
 }

@@ -189,7 +189,7 @@
       "message": "Aktifkan Home Assistant di Litmus NVR › Setelan › Integrasi. Jika tidak ada, perbarui Litmus NVR."
     },
     "setup_unreachable": {
-      "message": "Litmus NVR ({address}) — Gagal terhubung"
+      "message": "Litmus NVR ({address}): Gagal terhubung"
     }
   }
 }

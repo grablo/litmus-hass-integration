@@ -189,7 +189,7 @@
       "message": "Litmus NVR › Ayarlar › Entegrasyonlar bölümünden Home Assistant'ı açın. Görmüyorsanız Litmus NVR'yi güncelleyin."
     },
     "setup_unreachable": {
-      "message": "Litmus NVR ({address}) — Bağlanma hatası"
+      "message": "Litmus NVR ({address}): Bağlanma hatası"
     }
   }
 }

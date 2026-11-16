@@ -189,7 +189,7 @@
       "message": "Zet Home Assistant aan in Litmus NVR › Instellingen › Integraties. Zie je het niet, werk Litmus NVR dan bij."
     },
     "setup_unreachable": {
-      "message": "Litmus NVR ({address}) — Kan geen verbinding maken"
+      "message": "Litmus NVR ({address}): Kan geen verbinding maken"
     }
   }
 }
