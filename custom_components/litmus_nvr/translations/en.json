@@ -181,6 +181,15 @@
     },
     "cannot_connect": {
       "message": "Could not reach Litmus NVR. Try again."
+    },
+    "setup_not_enabled": {
+      "message": "Home Assistant is turned off in Litmus NVR. Turn it on in Settings › Integrations."
+    },
+    "setup_turn_on_or_update": {
+      "message": "Turn on Home Assistant in Litmus NVR › Settings › Integrations. If you don't see it, update Litmus NVR."
+    },
+    "setup_unreachable": {
+      "message": "Litmus NVR ({address}) — Failed to connect"
     }
   }
 }

@@ -181,6 +181,15 @@
     },
     "cannot_connect": {
       "message": "无法连接到 Litmus NVR，请重试。"
+    },
+    "setup_not_enabled": {
+      "message": "Litmus NVR 中的 Home Assistant 已关闭。请在“设置 › 集成”中开启。"
+    },
+    "setup_turn_on_or_update": {
+      "message": "请在 Litmus NVR 的“设置 › 集成”中开启 Home Assistant。如果没有此项，请更新 Litmus NVR。"
+    },
+    "setup_unreachable": {
+      "message": "Litmus NVR ({address}) — 连接失败"
     }
   }
 }

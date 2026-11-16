@@ -181,6 +181,15 @@
     },
     "cannot_connect": {
       "message": "Litmus NVR에 연결하지 못했습니다. 다시 시도해 주세요."
+    },
+    "setup_not_enabled": {
+      "message": "Litmus NVR에서 Home Assistant가 꺼져 있습니다. 설정 › 연동에서 켜세요."
+    },
+    "setup_turn_on_or_update": {
+      "message": "Litmus NVR 설정 › 연동에서 Home Assistant를 켜세요. 메뉴가 없으면 Litmus NVR을 업데이트하세요."
+    },
+    "setup_unreachable": {
+      "message": "Litmus NVR ({address}) — 연결하지 못했습니다"
     }
   }
 }

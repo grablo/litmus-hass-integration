@@ -181,6 +181,15 @@
     },
     "cannot_connect": {
       "message": "No se pudo conectar con Litmus NVR. Vuelve a intentarlo."
+    },
+    "setup_not_enabled": {
+      "message": "Home Assistant está desactivado en Litmus NVR. Actívalo en Ajustes › Integraciones."
+    },
+    "setup_turn_on_or_update": {
+      "message": "Activa Home Assistant en Litmus NVR › Ajustes › Integraciones. Si no lo ves, actualiza Litmus NVR."
+    },
+    "setup_unreachable": {
+      "message": "Litmus NVR ({address}) — No se pudo conectar"
     }
   }
 }

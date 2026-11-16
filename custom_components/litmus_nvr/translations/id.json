@@ -181,6 +181,15 @@
     },
     "cannot_connect": {
       "message": "Tidak dapat menjangkau Litmus NVR. Coba lagi."
+    },
+    "setup_not_enabled": {
+      "message": "Home Assistant dinonaktifkan di Litmus NVR. Aktifkan di Setelan › Integrasi."
+    },
+    "setup_turn_on_or_update": {
+      "message": "Aktifkan Home Assistant di Litmus NVR › Setelan › Integrasi. Jika tidak ada, perbarui Litmus NVR."
+    },
+    "setup_unreachable": {
+      "message": "Litmus NVR ({address}) — Gagal terhubung"
     }
   }
 }

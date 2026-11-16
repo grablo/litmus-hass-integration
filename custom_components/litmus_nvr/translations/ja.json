@@ -181,6 +181,15 @@
     },
     "cannot_connect": {
       "message": "Litmus NVR に接続できませんでした。もう一度お試しください。"
+    },
+    "setup_not_enabled": {
+      "message": "Litmus NVR で Home Assistant がオフになっています。設定 › 連携 でオンにしてください。"
+    },
+    "setup_turn_on_or_update": {
+      "message": "Litmus NVR の 設定 › 連携 で Home Assistant をオンにしてください。表示されない場合は Litmus NVR をアップデートしてください。"
+    },
+    "setup_unreachable": {
+      "message": "Litmus NVR ({address}) — 接続に失敗しました"
     }
   }
 }

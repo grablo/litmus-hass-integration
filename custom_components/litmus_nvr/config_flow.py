@@ -208,7 +208,12 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
                     # the same rule as the sidebar title (__init__._refresh_panels).
                     title = f"{title} ({self._host})"
                 return self.async_create_entry(title=title, data=data)
-        schema = vol.Schema({vol.Required(CONF_USERNAME): str, vol.Required(CONF_PASSWORD): str})
+        # A failed sign-in keeps the username (never the password) — HA's add_suggested_values_to_schema, as core integrations do.
+        # Before, a wrong password wiped both fields (2026-11-16, real HA OS).
+        schema = self.add_suggested_values_to_schema(
+            vol.Schema({vol.Required(CONF_USERNAME): str, vol.Required(CONF_PASSWORD): str}),
+            {CONF_USERNAME: (user_input or {}).get(CONF_USERNAME, "")},
+        )
         return self.async_show_form(
             step_id="credentials",
             data_schema=schema,

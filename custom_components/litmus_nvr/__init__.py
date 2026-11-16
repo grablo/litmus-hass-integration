@@ -12,7 +12,7 @@ from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import LitmusAuthError, LitmusClient, LitmusConnectionError
+from .api import LitmusAuthError, LitmusClient, LitmusConnectionError, LitmusNotEnabledError, LitmusUpdateRequiredError
 from .const import CONF_ADDON_SLUG, CONF_TOKEN, DOMAIN, MANUFACTURER, NAME
 from .entity import zone_identifier
 from .hub import LitmusHub
@@ -39,8 +39,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry) -> bo
         await hub.async_start()
     except LitmusAuthError as err:
         raise ConfigEntryAuthFailed("Litmus NVR rejected the token") from err
+    # ★ HA 가 「Failed setup, will retry: …」로 보이는 문장 — 번역 키로 낸다(HA exception-translations). 종전에는 aiohttp 원문
+    #   (「Cannot connect to host … ssl:default [DNS server returned answer with no data]」)이 그대로 보였다(2026-11-16 실화면).
+    #   원인 원문은 `from err` 로 로그에 남는다. 꺼짐·옛 판은 연결 실패와 다른 할 일이라 따로 말한다(설정 흐름 오류와 같은 문장).
+    except LitmusNotEnabledError as err:
+        raise ConfigEntryNotReady(translation_domain=DOMAIN, translation_key="setup_not_enabled") from err
+    except LitmusUpdateRequiredError as err:
+        raise ConfigEntryNotReady(translation_domain=DOMAIN, translation_key="setup_turn_on_or_update") from err
     except LitmusConnectionError as err:
-        raise ConfigEntryNotReady(f"Litmus NVR is not reachable: {err}") from err
+        raise ConfigEntryNotReady(
+            translation_domain=DOMAIN,
+            translation_key="setup_unreachable",
+            translation_placeholders={"address": f"{entry.data[CONF_HOST]}:{entry.data[CONF_PORT]}"},
+        ) from err
     entry.runtime_data = hub
 
     dev_reg = dr.async_get(hass)
