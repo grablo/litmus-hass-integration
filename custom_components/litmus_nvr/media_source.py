@@ -84,11 +84,11 @@ class LitmusMediaSource(MediaSource):
         if not ident:
             entries = _entries(self.hass)
             if len(entries) == 1:
-                return self._entry_node(entries[0].entry_id)
+                return await self._entry_node_shown(entries[0].entry_id)
             return self._folder("", NAME, [self._entry_node(e.entry_id, children=False) for e in entries])
         parts = ident.split("/")
         if len(parts) == 1:
-            return self._entry_node(parts[0])
+            return await self._entry_node_shown(parts[0])
         if len(parts) == 3 and parts[1] == "cam":
             return await self._camera_node(parts[0], parts[2])
         if len(parts) == 4 and parts[1] == "day":
@@ -117,13 +117,30 @@ class LitmusMediaSource(MediaSource):
             thumbnail=thumb,
         )
 
-    def _entry_node(self, entry_id: str, children: bool = True) -> BrowseMediaSource:
+    async def _entry_node_shown(self, entry_id: str) -> BrowseMediaSource:
+        """The place with only the kinds worth opening: turned on in Litmus, or with cards kept from before it was turned off.
+        An empty 「Faces」 folder on a place that never recognised faces is noise (Frigate's media browser lists only labels that have events)."""
+        hub = self._hub(entry_id)
+        enabled = set(hub.classes)
+        shown: list[str] = []
+        for kind in KINDS:
+            if kind in enabled:
+                shown.append(kind)
+                continue
+            try:
+                if await hub.client.cards(kind, days=30, limit=1):
+                    shown.append(kind)
+            except LitmusError:
+                shown.append(kind)   # cannot tell — show it rather than hide what may be there
+        return self._entry_node(entry_id, kinds=shown)
+
+    def _entry_node(self, entry_id: str, children: bool = True, kinds: list[str] | None = None) -> BrowseMediaSource:
         hub = self._hub(entry_id)
         title = hub.device.get("name") or NAME
         if not children:
             return self._folder(entry_id, title, None)
         titles = KIND_TITLES["ko" if (self.hass.config.language or "").startswith("ko") else "en"]
-        kinds = [self._folder(f"{entry_id}/kind/{k}", titles[k], None) for k in KINDS]
+        kinds = [self._folder(f"{entry_id}/kind/{k}", titles[k], None) for k in (KINDS if kinds is None else kinds)]
         cams = [
             self._folder(f"{entry_id}/cam/{cam['id']}", cam.get("name") or cam["id"], None)
             for cam in hub.cameras

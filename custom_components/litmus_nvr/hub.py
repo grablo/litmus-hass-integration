@@ -17,7 +17,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 
-from .api import LitmusAuthError, LitmusClient, LitmusConnectionError
+from .api import LitmusAuthError, LitmusClient, LitmusConnectionError, LitmusError
 from .const import DOMAIN, SIGNAL_EVENT, SIGNAL_IDENTITY, SIGNAL_PRESENCE, SIGNAL_STATE, SIGNAL_ZONE_PRESENCE
 
 _LOGGER = logging.getLogger(__name__)
@@ -32,7 +32,8 @@ class LitmusHub:
         self.client = client
         self.state: dict[str, Any] = {}
         self.available = False
-        self.last_event: dict[str, dict[str, Any]] = {}   # camera id -> last alert event
+        # camera id -> last alert event that came with a picture (what the "Last alert" image shows)
+        self.last_event: dict[str, dict[str, Any]] = {}
         self._task: asyncio.Task | None = None
         self._ws: aiohttp.ClientWebSocketResponse | None = None
 
@@ -89,6 +90,15 @@ class LitmusHub:
         """Fetch the first state (raises on auth/connection error) and start the push loop."""
         self.state = await self.client.state()
         self.available = True
+        # The "Last alert" image starts from the NVR's recent alerts, so a Home Assistant restart or a reload does not leave it empty
+        # until the next alert (Frigate's images are read from its API in the same way). Events are not fired again: an automation
+        # must not run late for an alert it already handled or missed.
+        try:
+            for event in await self.client.events():
+                if event.get("snapshot") and event.get("camera"):
+                    self.last_event[str(event["camera"])] = event
+        except LitmusError as err:
+            _LOGGER.debug("Could not read recent alerts from Litmus NVR: %s", err)
         self._task = self.entry.async_create_background_task(self.hass, self._run(), "litmus_nvr websocket")
 
     async def async_stop(self) -> None:
@@ -222,6 +232,7 @@ class LitmusHub:
         if kind == "event":
             event = data.get("event") or {}
             camera_id = str(event.get("camera"))
-            self.last_event[camera_id] = event
+            if event.get("snapshot"):
+                self.last_event[camera_id] = event
             async_dispatcher_send(self.hass, SIGNAL_EVENT.format(eid), camera_id, event)
             return

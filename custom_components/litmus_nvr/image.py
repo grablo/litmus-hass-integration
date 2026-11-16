@@ -34,6 +34,10 @@ class LitmusLastAlertImage(LitmusCameraEntity, ImageEntity):
         self._attr_unique_id = unique_id(hub, "last_alert", camera_id)
         self._path: str | None = None
         self._bytes: bytes | None = None
+        # The last alert the NVR still holds — so a restart or reload does not leave the image empty until the next alert.
+        last = hub.last_event.get(camera_id)
+        if last:
+            self._show(last)
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
@@ -41,16 +45,19 @@ class LitmusLastAlertImage(LitmusCameraEntity, ImageEntity):
             async_dispatcher_connect(self.hass, SIGNAL_EVENT.format(self.hub.entry.entry_id), self._event)
         )
 
-    @callback
-    def _event(self, camera_id: str, ev: dict[str, Any]) -> None:
-        if camera_id != self.camera_id or not ev.get("snapshot"):
-            return
+    def _show(self, ev: dict[str, Any]) -> None:
         self._path = str(ev["snapshot"])
         self._bytes = None
         ts = ev.get("ts")
         self._attr_image_last_updated = (
             datetime.fromtimestamp(ts / 1000, tz=timezone.utc) if isinstance(ts, (int, float)) else datetime.now(timezone.utc)
         )
+
+    @callback
+    def _event(self, camera_id: str, ev: dict[str, Any]) -> None:
+        if camera_id != self.camera_id or not ev.get("snapshot"):
+            return
+        self._show(ev)
         self.async_write_ha_state()
 
     async def async_image(self) -> bytes | None:

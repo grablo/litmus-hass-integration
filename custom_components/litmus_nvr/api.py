@@ -180,6 +180,11 @@ class LitmusClient:
             raise LitmusConnectionError("unexpected response")
         return data
 
+    async def events(self, limit: int = 200) -> list[dict[str, Any]]:
+        """Recent alert events kept by the NVR (in memory, oldest first) — the same objects the WebSocket sends."""
+        data = await self._json("GET", "events", params={"limit": str(limit)})
+        return [e for e in data if isinstance(e, dict)] if isinstance(data, list) else []
+
     async def update_info(self) -> dict[str, Any]:
         data = await self._json("GET", "update")
         return data if isinstance(data, dict) else {}
