@@ -6,13 +6,23 @@ Custom integration that connects Home Assistant to a [Litmus NVR](https://litmus
 
 For each camera:
 
-- **Camera** with live view over WebRTC (Home Assistant's native WebRTC player) and snapshots
-- **Binary sensors**: person, vehicle, animal and sound detected (cleared 30 seconds after the last detection)
+- **Camera** with live view over WebRTC (Home Assistant's native WebRTC player) and snapshots. On Home Assistant 2026.11 or later, cameras that support two-way audio get a talk button (turn on the **Two-way audio** preview in **Settings › System › Labs**)
+- **Binary sensors**: person, vehicle, animal and sound detected (cleared 30 seconds after the last detection), plus "any object"
 - **Sensors**: number of people/vehicles/animals, last recognized face, last license plate
-- **Event entity** that fires for each Litmus alert, with the alert title, message and a signed snapshot URL
+- **Detection zones**: each zone you draw in Litmus becomes a device with its own person/vehicle/animal sensors and counts
+- **Event entity** that fires for each Litmus alert, with the alert title, message, a signed snapshot URL and a clip URL
 - **Image entity** with the latest alert snapshot
+- **Switches**: turn detection or recording off and on (back on when Litmus restarts)
 
-Plus an **update** entity for the Litmus software and a blueprint that forwards Litmus alerts to the Home Assistant mobile app.
+For the Litmus device:
+
+- **Media panel**: browse Litmus cards (people, faces, vehicles, animals) and each camera's recordings by day, and play them in Home Assistant
+- **Sidebar** link that opens the Litmus web interface
+- **Phone notifications** switch for Litmus's own push notifications
+- **Update** entity for the Litmus software
+- **Diagnostic sensors** (status, uptime, CPU and memory usage, inference speed, camera and detection fps), off by default
+
+Plus a blueprint that forwards Litmus alerts to the Home Assistant mobile app.
 
 Updates are pushed from the device over a local WebSocket (`local_push`); nothing goes through the cloud.
 
