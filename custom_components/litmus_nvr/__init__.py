@@ -5,6 +5,8 @@ Design: litmus-web docs/LITMUS_HOME_INTEGRATION.md §6 (modelled on the Frigate 
 
 from __future__ import annotations
 
+import ipaddress
+
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.core import HomeAssistant
@@ -13,7 +15,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import LitmusAuthError, LitmusClient, LitmusConnectionError, LitmusNotEnabledError, LitmusUpdateRequiredError
-from .const import CONF_ADDON_SLUG, CONF_TOKEN, DOMAIN, MANUFACTURER, NAME
+from .const import CONF_ADDON_SLUG, CONF_TITLE_HOST, CONF_TOKEN, DOMAIN, MANUFACTURER, NAME
 from .entity import zone_identifier
 from .hub import LitmusHub
 from .panel import async_add_panel, async_remove_panel
@@ -53,6 +55,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry) -> bo
             translation_placeholders={"address": f"{entry.data[CONF_HOST]}:{entry.data[CONF_PORT]}"},
         ) from err
     entry.runtime_data = hub
+    _follow_address(hass, entry, hub)
 
     dev_reg = dr.async_get(hass)
     # The NVR device first — camera devices link to it by device id (via_device_id), like reolink creates its host device first.
@@ -91,6 +94,43 @@ async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry) -> bo
     # Sidebar entry that opens the NVR's own screen (Frigate's add-on puts its UI in the sidebar the same way).
     await _refresh_panels(hass, setting_up=entry)
     return True
+
+
+def _is_ip(text: str) -> bool:
+    try:
+        ipaddress.ip_address(text)
+    except ValueError:
+        return False
+    return True
+
+
+def _follow_address(hass: HomeAssistant, entry: ConfigEntry, hub: LitmusHub) -> None:
+    """An entry added next to another NVR with the same place name is titled `<place> (<address>)` (config_flow credentials).
+    Every way the address changes — zeroconf/DHCP, reconfigure, the add-on announcing itself, adding the same NVR again — updates
+    entry.data and reloads, so setup is the one place to swap the old address in the title for the new one; the sidebar title is
+    rebuilt from entry.data every time already (_refresh_panels). Only the title the integration made is touched — a title the user
+    renamed in Home Assistant no longer ends with ` (<old address>)` and is kept."""
+    host = str(entry.data.get(CONF_HOST) or "")
+    old = entry.data.get(CONF_TITLE_HOST)
+    if old is None:
+        # Entries made by 1.0.2 and before do not record the address. Recognise their title by the NVR's place name followed by
+        # an IP address in brackets — exactly what config_flow made; anything else is left alone.
+        name = str(hub.device.get("name") or "").strip()
+        prefix = f"{name} ("
+        if name and entry.title.startswith(prefix) and entry.title.endswith(")") and _is_ip(entry.title[len(prefix) : -1]):
+            old = entry.title[len(prefix) : -1]
+    if not old or not host or not entry.title.endswith(f" ({old})"):
+        return
+    if old == host:
+        if entry.data.get(CONF_TITLE_HOST) != host:
+            # An old entry recognised while the address is unchanged — record it, so a later place rename does not hide it.
+            hass.config_entries.async_update_entry(entry, data={**entry.data, CONF_TITLE_HOST: host})
+        return
+    hass.config_entries.async_update_entry(
+        entry,
+        title=f"{entry.title[: -len(f' ({old})')]} ({host})",
+        data={**entry.data, CONF_TITLE_HOST: host},
+    )
 
 
 async def _refresh_panels(hass: HomeAssistant, setting_up: ConfigEntry | None = None, leaving: ConfigEntry | None = None) -> None:

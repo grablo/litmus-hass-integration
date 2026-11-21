@@ -10,6 +10,7 @@ DEFAULT_PORT = 8128
 CONF_TOKEN = "token"
 CONF_DEVICE_ID = "device_id"
 CONF_ADDON_SLUG = "addon_slug"   # set when found through the Supervisor (HA add-on) — the sidebar opens its ingress page
+CONF_TITLE_HOST = "title_host"   # the address the entry title ends with, `<place> (<address>)` — kept in step when the address changes
 
 API_VERSION = 1
 

@@ -26,7 +26,7 @@ from .api import (
     LitmusUpdateRequiredError,
     LitmusTokenLimitError,
 )
-from .const import API_VERSION, CONF_ADDON_SLUG, CONF_DEVICE_ID, CONF_TOKEN, DEFAULT_PORT, DOMAIN, NAME
+from .const import API_VERSION, CONF_ADDON_SLUG, CONF_DEVICE_ID, CONF_TITLE_HOST, CONF_TOKEN, DEFAULT_PORT, DOMAIN, NAME
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -207,6 +207,9 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
                     # Two NVRs with the default place name (「My CCTV」) look the same in Devices & services — add the address,
                     # the same rule as the sidebar title (__init__._refresh_panels).
                     title = f"{title} ({self._host})"
+                    # Remember which address the title carries — when the NVR moves (DHCP, reconfigure) setup swaps it for the new one
+                    # (__init__._follow_address); otherwise the old address would point at the wrong NVR.
+                    data[CONF_TITLE_HOST] = self._host
                 return self.async_create_entry(title=title, data=data)
         # A failed sign-in keeps the username (never the password) — HA's add_suggested_values_to_schema, as core integrations do.
         # Before, a wrong password wiped both fields (2026-11-16, real HA OS).
