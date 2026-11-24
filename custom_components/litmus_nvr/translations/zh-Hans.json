@@ -17,6 +17,14 @@
           "password": "密码"
         }
       },
+      "credentials_app": {
+        "title": "登录 Litmus NVR",
+        "description": "使用你登录 Litmus NVR 时所用的账户（设置 › 应用 › Litmus NVR › 打开网页界面）。",
+        "data": {
+          "username": "用户名",
+          "password": "密码"
+        }
+      },
       "reconfigure": {
         "title": "Litmus NVR 地址",
         "description": "输入运行 Litmus NVR 的电脑的新地址。",
@@ -31,7 +39,7 @@
       },
       "hassio_confirm": {
         "title": "发现 Litmus NVR",
-        "description": "要添加 Litmus NVR 加载项吗？"
+        "description": "要添加 Litmus NVR 应用吗？"
       }
     },
     "error": {

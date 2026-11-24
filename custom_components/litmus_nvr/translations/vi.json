@@ -17,6 +17,14 @@
           "password": "Mật khẩu"
         }
       },
+      "credentials_app": {
+        "title": "Đăng nhập Litmus NVR",
+        "description": "Dùng tài khoản bạn đăng nhập vào Litmus NVR (Cài đặt › Ứng dụng › Litmus NVR › Mở giao diện web).",
+        "data": {
+          "username": "Tên đăng nhập",
+          "password": "Mật khẩu"
+        }
+      },
       "reconfigure": {
         "title": "Địa chỉ Litmus NVR",
         "description": "Nhập địa chỉ mới của máy tính đang chạy Litmus NVR.",
@@ -31,7 +39,7 @@
       },
       "hassio_confirm": {
         "title": "Đã tìm thấy Litmus NVR",
-        "description": "Thêm tiện ích bổ sung Litmus NVR?"
+        "description": "Thêm ứng dụng Litmus NVR?"
       }
     },
     "error": {

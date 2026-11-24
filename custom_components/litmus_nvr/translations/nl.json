@@ -17,6 +17,14 @@
           "password": "Wachtwoord"
         }
       },
+      "credentials_app": {
+        "title": "Inloggen bij Litmus NVR",
+        "description": "Gebruik het account waarmee je inlogt bij Litmus NVR (Instellingen › Apps › Litmus NVR › Open web UI).",
+        "data": {
+          "username": "Gebruikersnaam",
+          "password": "Wachtwoord"
+        }
+      },
       "reconfigure": {
         "title": "Adres van Litmus NVR",
         "description": "Voer het nieuwe adres in van de computer waarop Litmus NVR draait.",
@@ -31,7 +39,7 @@
       },
       "hassio_confirm": {
         "title": "Litmus NVR gevonden",
-        "description": "De Litmus NVR-add-on toevoegen?"
+        "description": "De Litmus NVR-app toevoegen?"
       }
     },
     "error": {

@@ -17,6 +17,14 @@
           "password": "パスワード"
         }
       },
+      "credentials_app": {
+        "title": "Litmus NVR にログイン",
+        "description": "Litmus NVR にログインするときのアカウントを使用してください（設定 › アプリ › Litmus NVR › Web UIを開く）。",
+        "data": {
+          "username": "ユーザー名",
+          "password": "パスワード"
+        }
+      },
       "reconfigure": {
         "title": "Litmus NVR のアドレス",
         "description": "Litmus NVR が動作しているコンピューターの新しいアドレスを入力してください。",
@@ -31,7 +39,7 @@
       },
       "hassio_confirm": {
         "title": "Litmus NVR が見つかりました",
-        "description": "Litmus NVR アドオンを追加しますか？"
+        "description": "Litmus NVR アプリを追加しますか？"
       }
     },
     "error": {

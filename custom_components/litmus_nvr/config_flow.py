@@ -217,12 +217,20 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
             vol.Schema({vol.Required(CONF_USERNAME): str, vol.Required(CONF_PASSWORD): str}),
             {CONF_USERNAME: (user_input or {}).get(CONF_USERNAME, "")},
         )
+        if self._addon_slug:
+            # Litmus NVR running as a Home Assistant app: its host name resolves only inside Home Assistant, so the address would not
+            # open in the browser — point at the app's Open Web UI instead (2026-11-24, HA OS 18.4).
+            return self.async_show_form(step_id="credentials_app", data_schema=schema, errors=errors)
         return self.async_show_form(
             step_id="credentials",
             data_schema=schema,
             errors=errors,
             description_placeholders={"host": f"{self._host}:{self._port}"},
         )
+
+    async def async_step_credentials_app(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        """The same sign-in for an app-discovered Litmus NVR (only the description differs)."""
+        return await self.async_step_credentials(user_input)
 
     async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Change the address (the PC running Litmus got a new IP) without removing the integration — Frigate and Reolink do the same.
@@ -262,4 +270,5 @@ class LitmusConfigFlow(ConfigFlow, domain=DOMAIN):
         self._host = entry_data[CONF_HOST]
         self._port = entry_data[CONF_PORT]
         self._device_id = entry_data.get(CONF_DEVICE_ID)
+        self._addon_slug = str(entry_data.get(CONF_ADDON_SLUG) or "")
         return await self.async_step_credentials()

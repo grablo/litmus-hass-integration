@@ -17,6 +17,14 @@
           "password": "Пароль"
         }
       },
+      "credentials_app": {
+        "title": "Вход в Litmus NVR",
+        "description": "Используйте учетную запись, с которой вы входите в Litmus NVR (Настройки › Приложения › Litmus NVR › Открыть веб-интерфейс).",
+        "data": {
+          "username": "Имя пользователя",
+          "password": "Пароль"
+        }
+      },
       "reconfigure": {
         "title": "Адрес Litmus NVR",
         "description": "Введите новый адрес компьютера, на котором работает Litmus NVR.",
@@ -31,7 +39,7 @@
       },
       "hassio_confirm": {
         "title": "Найден Litmus NVR",
-        "description": "Добавить дополнение Litmus NVR?"
+        "description": "Добавить приложение Litmus NVR?"
       }
     },
     "error": {

@@ -17,6 +17,14 @@
           "password": "Şifre"
         }
       },
+      "credentials_app": {
+        "title": "Litmus NVR'da oturum açın",
+        "description": "Litmus NVR'de oturum açtığınız hesabı kullanın (Ayarlar › Uygulamalar › Litmus NVR › Web Arayüzünü Açın).",
+        "data": {
+          "username": "Kullanıcı Adı",
+          "password": "Şifre"
+        }
+      },
       "reconfigure": {
         "title": "Litmus NVR adresi",
         "description": "Litmus NVR'ın çalıştığı bilgisayarın yeni adresini girin.",
@@ -31,7 +39,7 @@
       },
       "hassio_confirm": {
         "title": "Litmus NVR bulundu",
-        "description": "Litmus NVR eklentisi eklensin mi?"
+        "description": "Litmus NVR uygulaması eklensin mi?"
       }
     },
     "error": {

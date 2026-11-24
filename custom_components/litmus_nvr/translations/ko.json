@@ -17,6 +17,14 @@
           "password": "비밀번호"
         }
       },
+      "credentials_app": {
+        "title": "Litmus NVR 로그인",
+        "description": "Litmus NVR에 로그인하는 계정을 입력하세요. (설정 › 앱 › Litmus NVR › 웹 UI 열기)",
+        "data": {
+          "username": "사용자 이름",
+          "password": "비밀번호"
+        }
+      },
       "reconfigure": {
         "title": "Litmus NVR 주소",
         "description": "Litmus NVR이 실행 중인 컴퓨터의 새 주소를 입력하세요.",
@@ -31,7 +39,7 @@
       },
       "hassio_confirm": {
         "title": "Litmus NVR을 찾았습니다",
-        "description": "Litmus NVR 애드온을 추가할까요?"
+        "description": "Litmus NVR 앱을 추가할까요?"
       }
     },
     "error": {

@@ -17,6 +17,14 @@
           "password": "รหัสผ่าน"
         }
       },
+      "credentials_app": {
+        "title": "ลงชื่อเข้าใช้ Litmus NVR",
+        "description": "ใช้บัญชีที่คุณใช้ลงชื่อเข้าใช้ Litmus NVR (การตั้งค่า › Apps › Litmus NVR › Open Web UI)",
+        "data": {
+          "username": "ชื่อผู้ใช้",
+          "password": "รหัสผ่าน"
+        }
+      },
       "reconfigure": {
         "title": "ที่อยู่ของ Litmus NVR",
         "description": "ป้อนที่อยู่ใหม่ของคอมพิวเตอร์ที่ใช้งาน Litmus NVR",
@@ -31,7 +39,7 @@
       },
       "hassio_confirm": {
         "title": "พบ Litmus NVR",
-        "description": "เพิ่มส่วนเสริม Litmus NVR หรือไม่"
+        "description": "เพิ่มแอป Litmus NVR หรือไม่"
       }
     },
     "error": {

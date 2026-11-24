@@ -17,6 +17,14 @@
           "password": "Kata Sandi"
         }
       },
+      "credentials_app": {
+        "title": "Masuk ke Litmus NVR",
+        "description": "Gunakan akun yang Anda pakai untuk masuk ke Litmus NVR (Pengaturan › Aplikasi › Litmus NVR › Buka Antarmuka Web).",
+        "data": {
+          "username": "Nama Pengguna",
+          "password": "Kata Sandi"
+        }
+      },
       "reconfigure": {
         "title": "Alamat Litmus NVR",
         "description": "Masukkan alamat baru komputer yang menjalankan Litmus NVR.",
@@ -31,7 +39,7 @@
       },
       "hassio_confirm": {
         "title": "Litmus NVR ditemukan",
-        "description": "Tambahkan add-on Litmus NVR?"
+        "description": "Tambahkan aplikasi Litmus NVR?"
       }
     },
     "error": {

@@ -17,6 +17,14 @@
           "password": "Passwort"
         }
       },
+      "credentials_app": {
+        "title": "Bei Litmus NVR anmelden",
+        "description": "Verwende das Konto, mit dem du dich bei Litmus NVR anmeldest (Einstellungen › Apps › Litmus NVR › Benutzeroberfläche öffnen).",
+        "data": {
+          "username": "Benutzername",
+          "password": "Passwort"
+        }
+      },
       "reconfigure": {
         "title": "Adresse von Litmus NVR",
         "description": "Gib die neue Adresse des Computers ein, auf dem Litmus NVR läuft.",
@@ -31,7 +39,7 @@
       },
       "hassio_confirm": {
         "title": "Litmus NVR gefunden",
-        "description": "Litmus NVR-Add-on hinzufügen?"
+        "description": "Litmus NVR-App hinzufügen?"
       }
     },
     "error": {

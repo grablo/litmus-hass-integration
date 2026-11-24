@@ -17,6 +17,14 @@
           "password": "密碼"
         }
       },
+      "credentials_app": {
+        "title": "登入 Litmus NVR",
+        "description": "使用你登入 Litmus NVR 時所用的帳號（設定 › 應用程式 › Litmus NVR › 開啟 Web UI）。",
+        "data": {
+          "username": "使用者名稱",
+          "password": "密碼"
+        }
+      },
       "reconfigure": {
         "title": "Litmus NVR 位址",
         "description": "輸入執行 Litmus NVR 的電腦新位址。",
@@ -31,7 +39,7 @@
       },
       "hassio_confirm": {
         "title": "找到 Litmus NVR",
-        "description": "要新增 Litmus NVR 附加元件嗎？"
+        "description": "要新增 Litmus NVR 應用程式嗎？"
       }
     },
     "error": {

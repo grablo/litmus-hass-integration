@@ -17,6 +17,14 @@
           "password": "Contraseña"
         }
       },
+      "credentials_app": {
+        "title": "Iniciar sesión en Litmus NVR",
+        "description": "Usa la cuenta con la que inicias sesión en Litmus NVR (Configuración › Aplicaciones › Litmus NVR › Open Web UI).",
+        "data": {
+          "username": "Nombre de usuario",
+          "password": "Contraseña"
+        }
+      },
       "reconfigure": {
         "title": "Dirección de Litmus NVR",
         "description": "Introduce la nueva dirección del equipo en el que se ejecuta Litmus NVR.",
@@ -31,7 +39,7 @@
       },
       "hassio_confirm": {
         "title": "Se encontró Litmus NVR",
-        "description": "¿Añadir el complemento Litmus NVR?"
+        "description": "¿Añadir la aplicación Litmus NVR?"
       }
     },
     "error": {
