@@ -289,29 +289,24 @@ class LitmusClient:
             raise LitmusConnectionError("unexpected response")
         return data
 
-    async def open_event_clip(self, path: str, range_header: str | None) -> aiohttp.ClientResponse:
-        """Open an alert clip — path = 'events/<id>/clip.mp4?exp=..&sig=..' as sent by the NVR (the signature is the credential,
-        like the notification snapshot). Range passed through. The caller streams and releases the response."""
+    async def open_event_clip(self, event_id: str, range_header: str | None) -> aiohttp.ClientResponse:
+        """Open the recording of an alert with our token. Range passed through. The caller streams and releases the response."""
         headers = {"Range": range_header} if range_header else {}
         try:
             return await self._session.get(
-                f"{self._base}/{path}",
-                headers=headers,
+                f"{self._base}/events/{_seg(event_id)}/clip.mp4",
+                headers={**self._headers(), **headers},
                 timeout=aiohttp.ClientTimeout(total=None, sock_connect=10, sock_read=60),
             )
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:
             raise LitmusConnectionError(_describe(err)) from err
 
-    async def event_snapshot(self, path: str, *, with_token: bool = False) -> tuple[int, bytes]:
-        """path = 'events/<id>/snapshot.jpg?exp=..&sig=..' as sent by the NVR.
-
-        The notification proxy forwards it without our token (the signature is the credential);
-        the image entity sends the token as well so the picture still loads after the 7-day signature expires.
-        """
+    async def event_snapshot(self, path: str) -> tuple[int, bytes]:
+        """path = 'events/<id>/snapshot.jpg' (the NVR's own path may still carry its exp/sig — the token is what counts)."""
         try:
             resp = await self._session.get(
                 f"{self._base}/{path}",
-                headers=self._headers() if with_token else None,
+                headers=self._headers(),
                 timeout=aiohttp.ClientTimeout(total=10),
             )
         except (aiohttp.ClientError, asyncio.TimeoutError) as err:

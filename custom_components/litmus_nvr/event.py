@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import Any
 
 from homeassistant.components.event import EventEntity
+from homeassistant.components.http.auth import async_sign_path
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -13,6 +15,9 @@ from . import LitmusConfigEntry
 from .const import EVENT_TYPES, SIGNAL_EVENT
 from .entity import LitmusCameraEntity, unique_id
 from .hub import LitmusHub
+
+# How long a notification link opens without a Home Assistant login (the NVR's own alert links last as long).
+SIGNED_PATH_EXPIRY = timedelta(days=7)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
@@ -43,8 +48,8 @@ class LitmusAlertEvent(LitmusCameraEntity, EventEntity):
         kind = ev.get("kind") or "person"
         if kind not in EVENT_TYPES:
             return
-        snapshot = ev.get("snapshot")
-        clip = ev.get("clip")   # 2.4.0 — absent from older NVRs
+        snapshot = self._signed(ev.get("snapshot"))
+        clip = self._signed(ev.get("clip"))   # 2.4.0 — absent from older NVRs
         # Litmus alerts carry no detection confidence today (the NVR sends 0) — leave it out rather than show a false 0.0
         # that an automation could compare against (Frigate's score is a real confidence).
         score = ev.get("score")
@@ -61,13 +66,19 @@ class LitmusAlertEvent(LitmusCameraEntity, EventEntity):
                 "label": ev.get("label"),
                 **({"score": score} if has_score else {}),
                 "sound": ev.get("sound"),
-                # Opens without a Home Assistant login (signed, 7 days) — use it in notifications.
-                "snapshot": (
-                    f"/api/litmus_nvr/notifications/{self.hub.entry.entry_id}/{snapshot}" if snapshot else None
-                ),
-                # The recording of that event, same signed link (Frigate notifications/<id>/clip.mp4). While the event is still going on it
-                # plays what has been recorded so far (Frigate event_clip: end = now); after it ends, the whole event.
-                "clip": f"/api/litmus_nvr/notifications/{self.hub.entry.entry_id}/{clip}" if clip else None,
+                # Signed with async_sign_path (7 days), so a phone notification opens it without a Home Assistant login.
+                "snapshot": snapshot,
+                # The recording of that event, signed the same way (Frigate notifications/<id>/clip.mp4). While the event is still
+                # going on it plays what has been recorded so far (Frigate event_clip: end = now); after it ends, the whole event.
+                "clip": clip,
             },
         )
         self.async_write_ha_state()
+
+    def _signed(self, nvr_path: Any) -> str | None:
+        """The NVR's 'events/<id>/snapshot.jpg?exp=..&sig=..' → our signed proxy path. The NVR's own exp/sig are dropped:
+        the proxy calls the NVR with the integration token. Signed for the content user, not whoever set the integration up."""
+        if not isinstance(nvr_path, str) or not nvr_path:
+            return None
+        path = f"/api/litmus_nvr/notifications/{self.hub.entry.entry_id}/{nvr_path.split('?', 1)[0]}"
+        return async_sign_path(self.hass, path, SIGNED_PATH_EXPIRY, use_content_user=True)

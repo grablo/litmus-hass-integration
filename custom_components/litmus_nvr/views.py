@@ -1,7 +1,7 @@
-"""Notification snapshot proxy — opens without a Home Assistant login, like Frigate's NotificationsProxyView.
+"""Alert snapshot and clip proxy for phone notifications (Frigate's NotificationsProxyView serves the same files).
 
-Frigate trusts the event id (+ optional expiry). Litmus signs instead: the NVR adds `exp` and an HMAC `sig`
-to every alert snapshot path and checks them itself; this view only forwards the request.
+Both views need a Home Assistant login. The event entity hands out their paths signed with `async_sign_path` (7 days),
+so a phone notification still loads them without an authorization header. The NVR is called with the integration's token.
 """
 
 from __future__ import annotations
@@ -17,15 +17,14 @@ from .api import LitmusError
 from .const import DOMAIN
 
 _EVENT_ID = re.compile(r"[0-9]{1,16}-[0-9a-f]{8}")   # HomeHub: "<epochMs>-<8hex>"
-_SIG = re.compile(r"[0-9a-f]{64}")                    # HMAC-SHA256 hex
 
 
 class LitmusNotificationView(HomeAssistantView):
-    """GET /api/litmus_nvr/notifications/{entry_id}/events/{event_id}/snapshot.jpg?exp=&sig="""
+    """GET /api/litmus_nvr/notifications/{entry_id}/events/{event_id}/snapshot.jpg — HA login or a signed path."""
 
     url = "/api/litmus_nvr/notifications/{entry_id}/events/{event_id}/snapshot.jpg"
     name = "api:litmus_nvr:notification_snapshot"
-    requires_auth = False
+    requires_auth = True
 
     def __init__(self, hass: HomeAssistant) -> None:
         self.hass = hass
@@ -34,15 +33,10 @@ class LitmusNotificationView(HomeAssistantView):
         entry = self.hass.config_entries.async_get_entry(entry_id)
         if entry is None or entry.domain != DOMAIN or not hasattr(entry, "runtime_data"):
             return web.Response(status=404)
-        exp = request.query.get("exp", "")
-        sig = request.query.get("sig", "")
-        # Unauthenticated endpoint: accept only the exact shapes the NVR issues, so nothing else is forwarded.
-        if not (_EVENT_ID.fullmatch(event_id) and exp.isdigit() and _SIG.fullmatch(sig)):
-            return web.Response(status=401)
+        if not _EVENT_ID.fullmatch(event_id):
+            return web.Response(status=404)
         try:
-            status, body = await entry.runtime_data.client.event_snapshot(
-                f"events/{event_id}/snapshot.jpg?exp={exp}&sig={sig}"
-            )
+            status, body = await entry.runtime_data.client.event_snapshot(f"events/{event_id}/snapshot.jpg")
         except LitmusError:
             return web.Response(status=502)
         if status != 200:
@@ -68,16 +62,13 @@ async def _stream(request: web.Request, upstream, cache: str) -> web.StreamRespo
 
 
 class LitmusNotificationClipView(HomeAssistantView):
-    """GET /api/litmus_nvr/notifications/{entry_id}/events/{event_id}/clip.mp4?exp=&sig= — the alert's recording.
-
-    Opens without a Home Assistant login, like Frigate's NotificationsProxyView serves notifications/<id>/clip.mp4, so a phone
-    notification can open it. Signed by the NVR exactly like the snapshot. 404 while the recording is still being written
-    (Frigate: has_clip false until the event ends).
+    """GET /api/litmus_nvr/notifications/{entry_id}/events/{event_id}/clip.mp4 — the alert's recording (Frigate
+    notifications/<id>/clip.mp4). HA login or a signed path, like the snapshot. 404 while the NVR has nothing recorded yet.
     """
 
     url = "/api/litmus_nvr/notifications/{entry_id}/events/{event_id}/clip.mp4"
     name = "api:litmus_nvr:notification_clip"
-    requires_auth = False
+    requires_auth = True
 
     def __init__(self, hass: HomeAssistant) -> None:
         self.hass = hass
@@ -89,14 +80,10 @@ class LitmusNotificationClipView(HomeAssistantView):
         entry = self.hass.config_entries.async_get_entry(entry_id)
         if entry is None or entry.domain != DOMAIN or getattr(entry, "runtime_data", None) is None:
             return web.Response(status=404)
-        exp = request.query.get("exp", "")
-        sig = request.query.get("sig", "")
-        if not (_EVENT_ID.fullmatch(event_id) and exp.isdigit() and _SIG.fullmatch(sig)):
-            return web.Response(status=401)
+        if not _EVENT_ID.fullmatch(event_id):
+            return web.Response(status=404)
         try:
-            upstream = await entry.runtime_data.client.open_event_clip(
-                f"events/{event_id}/clip.mp4?exp={exp}&sig={sig}", request.headers.get("Range")
-            )
+            upstream = await entry.runtime_data.client.open_event_clip(event_id, request.headers.get("Range"))
         except LitmusError:
             return web.Response(status=502)
         async with upstream:

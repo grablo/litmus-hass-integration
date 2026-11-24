@@ -3,7 +3,7 @@ blueprint:
   description: >-
     Send a phone notification with the snapshot when a Litmus NVR alert goes off.
     The picture opens without a Home Assistant login (signed link). It stays available for up to 7 days,
-    for the latest 200 alerts, until Litmus NVR restarts.
+    for the latest 200 alerts, until Litmus NVR or Home Assistant restarts.
   domain: automation
   source_url: https://github.com/grablo/litmus-hass-integration/blob/main/blueprints/automation/litmus_nvr/notify.yaml
   input:

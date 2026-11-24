@@ -66,8 +66,7 @@ class LitmusLastAlertImage(LitmusCameraEntity, ImageEntity):
         if not self._path:
             return None
         try:
-            # With the token too: the signature expires after 7 days, the token does not.
-            status, body = await self.hub.client.event_snapshot(self._path, with_token=True)
+            status, body = await self.hub.client.event_snapshot(self._path)
         except LitmusError:
             return None
         if status == 200:
