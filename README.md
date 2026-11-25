@@ -2,6 +2,12 @@
 
 Custom integration that connects Home Assistant to a [Litmus NVR](https://litmusnvr.com) device on your local network.
 
+Don't have Litmus NVR yet? Every feature is free, with no camera limit. Install it as a Home Assistant app:
+
+[![Open your Home Assistant instance and show the add app repository dialog with the Litmus NVR repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fgrablo%2Flitmus-hass-addons)
+
+Or install it on a Windows, Mac or Linux computer or a Raspberry Pi from [litmusnvr.com/download](https://litmusnvr.com/download).
+
 ## What you get
 
 For each camera:
