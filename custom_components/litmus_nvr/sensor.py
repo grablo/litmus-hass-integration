@@ -28,7 +28,7 @@ from .const import (
     STATS_INTERVAL_SECONDS,
     ZONE_CLASSES,
 )
-from .entity import LitmusCameraEntity, LitmusEntity, LitmusZoneEntity, unique_id
+from .entity import async_prune_stale, LitmusCameraEntity, LitmusEntity, LitmusZoneEntity, unique_id
 from .hub import LitmusHub
 
 _LOGGER = logging.getLogger(__name__)
@@ -64,6 +64,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry, async
     entities.append(LitmusStatusSensor(hub))
     entities.extend(await _stats_entities(hass, entry, hub))
     async_add_entities(entities)
+    async_prune_stale(hass, entry, "sensor", entities)   # QA D-400 — sensors of detection turned off on a camera
 
 
 # ── counts ──

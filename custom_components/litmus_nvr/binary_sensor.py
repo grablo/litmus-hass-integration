@@ -15,7 +15,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import LitmusConfigEntry
 from .const import ALL, CLASSES, SIGNAL_PRESENCE, SIGNAL_ZONE_PRESENCE, ZONE_CLASSES
-from .entity import LitmusCameraEntity, LitmusZoneEntity, unique_id
+from .entity import async_prune_stale, LitmusCameraEntity, LitmusZoneEntity, unique_id
 from .hub import LitmusHub
 
 
@@ -62,6 +62,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry, async
             entities.extend(LitmusZonePresenceSensor(hub, cam["id"], str(z["name"]), cls) for cls in objects)
             entities.append(LitmusZoneAllPresenceSensor(hub, cam["id"], str(z["name"]), objects))
     async_add_entities(entities)
+    async_prune_stale(hass, entry, "binary_sensor", entities)   # QA D-400 — sensors of detection turned off on a camera
 
 
 class LitmusPresenceSensor(LitmusCameraEntity, BinarySensorEntity):
