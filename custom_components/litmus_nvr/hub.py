@@ -77,6 +77,19 @@ class LitmusHub:
                 return z
         return None
 
+    def _camera_class_signature(self) -> set[tuple[str, str]]:
+        """What each camera detects — Litmus 2.8+ turns detections on per camera (`classes` on each camera; absent on older NVRs)."""
+        return {
+            (str(cam.get("id")), str(c))
+            for cam in self.state.get("cameras", [])
+            if isinstance(cam.get("classes"), list)
+            for c in cam["classes"]
+        } | {
+            (str(cam.get("id")), "*")
+            for cam in self.state.get("cameras", [])
+            if isinstance(cam.get("classes"), list)
+        }
+
     def _zone_signature(self) -> set[tuple[str, str]]:
         return {
             (str(cam.get("id")), str(z.get("name")))
@@ -185,6 +198,7 @@ class LitmusHub:
         if kind == "state":
             old_ids = {c.get("id") for c in self.state.get("cameras", [])}
             old_classes = set(self.classes)
+            old_cam_classes = self._camera_class_signature()
             old_zones = self._zone_signature()
             self.state = data.get("data", {})
             self.available = True
@@ -194,7 +208,7 @@ class LitmusHub:
             if new_ids != old_ids and self.cameras_authoritative:
                 # Camera added or removed — reload so entities and devices follow (Frigate does the same on config change).
                 self.hass.config_entries.async_schedule_reload(eid)
-            elif set(self.classes) != old_classes and self.cameras_authoritative:
+            elif (set(self.classes) != old_classes or self._camera_class_signature() != old_cam_classes) and self.cameras_authoritative:
                 # Detection turned on or off in Litmus (person / vehicle / animal / sound) — reload so the sensors follow.
                 self.hass.config_entries.async_schedule_reload(eid)
             elif self._zone_signature() != old_zones and self.cameras_authoritative:

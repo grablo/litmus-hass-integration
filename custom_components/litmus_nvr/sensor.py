@@ -18,7 +18,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpda
 
 from . import LitmusConfigEntry
 from .api import LitmusError
-from .binary_sensor import all_presence, enabled_classes
+from .binary_sensor import all_presence, allowed_classes, enabled_classes
 from .const import (
     ALL,
     DOMAIN,
@@ -44,11 +44,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry, async
     hub = entry.runtime_data
     # Recognised face / plate only when this place recognises faces / vehicles (plates are read by vehicle recognition) — same rule as
     # the presence sensors: no entity for a feature that is off. An empty class list (older Litmus) means everything.
-    kinds = [k for k, cls in (("face", "face"), ("plate", "vehicle")) if cls in hub.classes or not hub.classes]
-    entities: list[SensorEntity] = [LitmusIdentitySensor(hub, cam["id"], kind) for cam in hub.cameras for kind in kinds]
-    # Counts only for classes that have a count (sound has none) and that this place detects — same rule as the presence sensors.
-    counted = enabled_classes(hub, ZONE_CLASSES)
+    # Litmus 2.8+ decides this per camera (the camera's `classes`), older NVRs per place.
+    entities: list[SensorEntity] = []
     for cam in hub.cameras:
+        allowed = allowed_classes(hub, cam)
+        kinds = [k for k, cls in (("face", "face"), ("plate", "vehicle")) if allowed is None or cls in allowed]
+        entities.extend(LitmusIdentitySensor(hub, cam["id"], kind) for kind in kinds)
+    # Counts only for classes that have a count (sound has none) and that this camera detects — same rule as the presence sensors.
+    for cam in hub.cameras:
+        counted = enabled_classes(hub, ZONE_CLASSES, cam)
         entities.extend(LitmusCountSensor(hub, cam["id"], cls) for cls in counted)
         if counted:
             entities.append(LitmusAllCountSensor(hub, cam["id"], counted))

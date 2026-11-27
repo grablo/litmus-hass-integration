@@ -19,10 +19,18 @@ from .entity import LitmusCameraEntity, LitmusZoneEntity, unique_id
 from .hub import LitmusHub
 
 
-def enabled_classes(hub: LitmusHub, classes: tuple[str, ...]) -> list[str]:
-    """Only what this place detects (Litmus sends the detections that are turned on; "none" when only faces are).
-    An NVR that sends no list at all (older 2.4 builds) gets every class, as before."""
-    return [c for c in classes if c in hub.classes] if hub.classes else list(classes)
+def allowed_classes(hub: LitmusHub, cam: dict[str, Any] | None = None) -> list[str] | None:
+    """What a camera detects. Litmus 2.8+ turns detections on per camera and sends that camera's list (`classes`, possibly empty);
+    older NVRs send only the place list. None = no list at all (older 2.4 builds) = every class, as before."""
+    if isinstance(cam, dict) and isinstance(cam.get("classes"), list):
+        return [str(c) for c in cam["classes"]]
+    return list(hub.classes) if hub.classes else None
+
+
+def enabled_classes(hub: LitmusHub, classes: tuple[str, ...], cam: dict[str, Any] | None = None) -> list[str]:
+    """Only what this camera (or, from older NVRs, this place) detects."""
+    allowed = allowed_classes(hub, cam)
+    return list(classes) if allowed is None else [c for c in classes if c in allowed]
 
 
 def all_presence(presence: dict[str, Any], classes: list[str]) -> tuple[bool, int]:
@@ -40,10 +48,10 @@ def all_presence(presence: dict[str, Any], classes: list[str]) -> tuple[bool, in
 
 async def async_setup_entry(hass: HomeAssistant, entry: LitmusConfigEntry, async_add_entities: AddEntitiesCallback) -> None:
     hub = entry.runtime_data
-    enabled = enabled_classes(hub, CLASSES)
-    objects = enabled_classes(hub, ZONE_CLASSES)
     entities: list[BinarySensorEntity] = []
     for cam in hub.cameras:
+        enabled = enabled_classes(hub, CLASSES, cam)
+        objects = enabled_classes(hub, ZONE_CLASSES, cam)
         entities.extend(LitmusPresenceSensor(hub, cam["id"], cls) for cls in enabled)
         if objects:   # Frigate adds "all" to every camera and zone (get_cameras_zones_and_objects include_all)
             entities.append(LitmusAllPresenceSensor(hub, cam["id"], objects))
