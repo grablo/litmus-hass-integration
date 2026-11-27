@@ -155,7 +155,10 @@
               "text_person": "Osoba według opisu",
               "text_vehicle": "Pojazd według opisu",
               "text_animal": "Zwierzę według opisu",
-              "sound": "Dźwięk"
+              "sound": "Dźwięk",
+              "event_fire": "Pożar",
+              "event_fall": "Upadek",
+              "event_loiter": "Długie przebywanie"
             }
           }
         }

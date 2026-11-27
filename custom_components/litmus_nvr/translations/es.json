@@ -155,7 +155,10 @@
               "text_person": "Persona por descripción",
               "text_vehicle": "Vehículo por descripción",
               "text_animal": "Animal por descripción",
-              "sound": "Sonido"
+              "sound": "Sonido",
+              "event_fire": "Fuego",
+              "event_fall": "Caída",
+              "event_loiter": "Merodeo"
             }
           }
         }

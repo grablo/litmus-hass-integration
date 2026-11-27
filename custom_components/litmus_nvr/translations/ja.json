@@ -155,7 +155,10 @@
               "text_person": "説明に一致する人物",
               "text_vehicle": "説明に一致する車両",
               "text_animal": "説明に一致する動物",
-              "sound": "音"
+              "sound": "音",
+              "event_fire": "火災",
+              "event_fall": "転倒",
+              "event_loiter": "滞留"
             }
           }
         }

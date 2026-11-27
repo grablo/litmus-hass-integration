@@ -155,7 +155,10 @@
               "text_person": "Açıklamaya uyan kişi",
               "text_vehicle": "Açıklamaya uyan araç",
               "text_animal": "Açıklamaya uyan hayvan",
-              "sound": "Ses"
+              "sound": "Ses",
+              "event_fire": "Yangın",
+              "event_fall": "Düşme",
+              "event_loiter": "Oyalanma"
             }
           }
         }

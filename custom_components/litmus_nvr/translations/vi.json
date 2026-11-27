@@ -155,7 +155,10 @@
               "text_person": "Người khớp mô tả",
               "text_vehicle": "Phương tiện khớp mô tả",
               "text_animal": "Động vật khớp mô tả",
-              "sound": "Âm thanh"
+              "sound": "Âm thanh",
+              "event_fire": "Cháy",
+              "event_fall": "Té ngã",
+              "event_loiter": "Lảng vảng"
             }
           }
         }

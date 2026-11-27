@@ -40,6 +40,10 @@ EVENT_TYPES = [
     "text_vehicle",
     "text_animal",
     "sound",
+    # Litmus 2.8.0 events — the NVR sends these recipe ids too (litmus-web recipeCatalog `event_*`).
+    "event_fire",
+    "event_fall",
+    "event_loiter",
 ]
 
 # Dispatcher signals (formatted with the config entry id).

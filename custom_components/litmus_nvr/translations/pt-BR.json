@@ -155,7 +155,10 @@
               "text_person": "Pessoa por descrição",
               "text_vehicle": "Veículo por descrição",
               "text_animal": "Animal por descrição",
-              "sound": "Som"
+              "sound": "Som",
+              "event_fire": "Incêndio",
+              "event_fall": "Queda",
+              "event_loiter": "Permanência prolongada"
             }
           }
         }

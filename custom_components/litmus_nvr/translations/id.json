@@ -155,7 +155,10 @@
               "text_person": "Orang sesuai deskripsi",
               "text_vehicle": "Kendaraan sesuai deskripsi",
               "text_animal": "Hewan sesuai deskripsi",
-              "sound": "Suara"
+              "sound": "Suara",
+              "event_fire": "Kebakaran",
+              "event_fall": "Jatuh",
+              "event_loiter": "Berlama-lama"
             }
           }
         }

@@ -155,7 +155,10 @@
               "text_person": "บุคคลตามคำบรรยาย",
               "text_vehicle": "ยานพาหนะตามคำบรรยาย",
               "text_animal": "สัตว์ตามคำบรรยาย",
-              "sound": "เสียง"
+              "sound": "เสียง",
+              "event_fire": "ไฟไหม้",
+              "event_fall": "ล้ม",
+              "event_loiter": "ป้วนเปี้ยน"
             }
           }
         }

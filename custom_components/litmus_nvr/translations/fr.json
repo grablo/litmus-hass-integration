@@ -155,7 +155,10 @@
               "text_person": "Personne décrite",
               "text_vehicle": "Véhicule décrit",
               "text_animal": "Animal décrit",
-              "sound": "Son"
+              "sound": "Son",
+              "event_fire": "Incendie",
+              "event_fall": "Chute",
+              "event_loiter": "Présence prolongée"
             }
           }
         }

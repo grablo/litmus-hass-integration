@@ -155,7 +155,10 @@
               "text_person": "Person nach Beschreibung",
               "text_vehicle": "Fahrzeug nach Beschreibung",
               "text_animal": "Tier nach Beschreibung",
-              "sound": "Geräusch"
+              "sound": "Geräusch",
+              "event_fire": "Feuer",
+              "event_fall": "Sturz",
+              "event_loiter": "Verweilen"
             }
           }
         }

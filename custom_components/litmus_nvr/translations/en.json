@@ -155,7 +155,10 @@
               "text_person": "Described person",
               "text_vehicle": "Described vehicle",
               "text_animal": "Described animal",
-              "sound": "Sound"
+              "sound": "Sound",
+              "event_fire": "Fire",
+              "event_fall": "Fall",
+              "event_loiter": "Loitering"
             }
           }
         }

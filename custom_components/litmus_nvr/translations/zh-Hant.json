@@ -155,7 +155,10 @@
               "text_person": "符合描述的人",
               "text_vehicle": "符合描述的車輛",
               "text_animal": "符合描述的動物",
-              "sound": "聲音"
+              "sound": "聲音",
+              "event_fire": "火災",
+              "event_fall": "跌倒",
+              "event_loiter": "徘徊"
             }
           }
         }

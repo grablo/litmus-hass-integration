@@ -155,7 +155,10 @@
               "text_person": "말로 정한 사람",
               "text_vehicle": "말로 정한 차량",
               "text_animal": "말로 정한 동물",
-              "sound": "소리"
+              "sound": "소리",
+              "event_fire": "화재",
+              "event_fall": "쓰러짐",
+              "event_loiter": "배회"
             }
           }
         }

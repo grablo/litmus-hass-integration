@@ -155,7 +155,10 @@
               "text_person": "Persoon volgens beschrijving",
               "text_vehicle": "Voertuig volgens beschrijving",
               "text_animal": "Dier volgens beschrijving",
-              "sound": "Geluid"
+              "sound": "Geluid",
+              "event_fire": "Brand",
+              "event_fall": "Val",
+              "event_loiter": "Rondhangen"
             }
           }
         }
