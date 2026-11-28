@@ -82,6 +82,15 @@
       },
       "all": {
         "name": "Tudo"
+      },
+      "fire": {
+        "name": "Incêndio"
+      },
+      "fall": {
+        "name": "Queda"
+      },
+      "loiter": {
+        "name": "Permanência prolongada"
       }
     },
     "sensor": {

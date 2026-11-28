@@ -82,6 +82,15 @@
       },
       "all": {
         "name": "전체"
+      },
+      "fire": {
+        "name": "화재"
+      },
+      "fall": {
+        "name": "쓰러짐"
+      },
+      "loiter": {
+        "name": "배회"
       }
     },
     "sensor": {

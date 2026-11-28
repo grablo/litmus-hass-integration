@@ -82,6 +82,15 @@
       },
       "all": {
         "name": "Tout"
+      },
+      "fire": {
+        "name": "Incendie"
+      },
+      "fall": {
+        "name": "Chute"
+      },
+      "loiter": {
+        "name": "Présence prolongée"
       }
     },
     "sensor": {

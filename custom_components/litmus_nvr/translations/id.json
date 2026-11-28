@@ -82,6 +82,15 @@
       },
       "all": {
         "name": "Semua"
+      },
+      "fire": {
+        "name": "Kebakaran"
+      },
+      "fall": {
+        "name": "Jatuh"
+      },
+      "loiter": {
+        "name": "Berlama-lama"
       }
     },
     "sensor": {

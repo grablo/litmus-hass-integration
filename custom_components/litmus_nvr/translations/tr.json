@@ -82,6 +82,15 @@
       },
       "all": {
         "name": "Tümü"
+      },
+      "fire": {
+        "name": "Yangın"
+      },
+      "fall": {
+        "name": "Düşme"
+      },
+      "loiter": {
+        "name": "Oyalanma"
       }
     },
     "sensor": {

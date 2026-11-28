@@ -82,6 +82,15 @@
       },
       "all": {
         "name": "すべて"
+      },
+      "fire": {
+        "name": "火災"
+      },
+      "fall": {
+        "name": "転倒"
+      },
+      "loiter": {
+        "name": "滞留"
       }
     },
     "sensor": {

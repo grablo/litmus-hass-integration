@@ -82,6 +82,15 @@
       },
       "all": {
         "name": "Todo"
+      },
+      "fire": {
+        "name": "Fuego"
+      },
+      "fall": {
+        "name": "Caída"
+      },
+      "loiter": {
+        "name": "Merodeo"
       }
     },
     "sensor": {

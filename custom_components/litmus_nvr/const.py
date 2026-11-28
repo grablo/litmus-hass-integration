@@ -15,7 +15,8 @@ CONF_TITLE_HOST = "title_host"   # the address the entry title ends with, `<plac
 API_VERSION = 1
 
 # Presence classes reported by the NVR (HomeHub.h kClass*).
-CLASSES = ("person", "vehicle", "animal", "sound")
+# Litmus 2.8: an event in progress (fire, fall, loitering) is reported the same way — on while it lasts.
+CLASSES = ("person", "vehicle", "animal", "sound", "fire", "fall", "loiter")
 # Classes a detection zone reports (no sound — zones are areas of the picture).
 ZONE_CLASSES = ("person", "vehicle", "animal")
 # Frigate's artificial "all" object — every tracked object on a camera or in a zone (get_cameras_and_objects include_all).

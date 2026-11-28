@@ -82,6 +82,15 @@
       },
       "all": {
         "name": "Tất cả"
+      },
+      "fire": {
+        "name": "Cháy"
+      },
+      "fall": {
+        "name": "Té ngã"
+      },
+      "loiter": {
+        "name": "Lảng vảng"
       }
     },
     "sensor": {

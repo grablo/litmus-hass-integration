@@ -82,6 +82,15 @@
       },
       "all": {
         "name": "Alles"
+      },
+      "fire": {
+        "name": "Brand"
+      },
+      "fall": {
+        "name": "Val"
+      },
+      "loiter": {
+        "name": "Rondhangen"
       }
     },
     "sensor": {

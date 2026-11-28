@@ -82,6 +82,15 @@
       },
       "all": {
         "name": "All"
+      },
+      "fire": {
+        "name": "Fire"
+      },
+      "fall": {
+        "name": "Fall"
+      },
+      "loiter": {
+        "name": "Loitering"
       }
     },
     "sensor": {
