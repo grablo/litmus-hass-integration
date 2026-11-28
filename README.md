@@ -44,13 +44,11 @@ Updates are pushed from the device over a local WebSocket (`local_push`); nothin
 
 [![Open your Home Assistant instance and open this repository in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=grablo&repository=litmus-hass-integration&category=integration)
 
-Or go to **Settings › Marketplace**, select **Add from link**, enter `https://github.com/grablo/litmus-hass-integration` under **GitHub link** and select **Add**. Install **Litmus NVR**, and restart Home Assistant if you are asked to.
+Or go to **Settings › Marketplace**, search for **Litmus NVR** and install it. Restart Home Assistant if you are asked to.
 
 ### HACS (Home Assistant 2026.10 or earlier)
 
-1. In HACS, open the menu › **Custom repositories**.
-2. Add `https://github.com/grablo/litmus-hass-integration` with type **Integration**.
-3. Install **Litmus NVR** and restart Home Assistant.
+Search for **Litmus NVR** in HACS, install it and restart Home Assistant.
 
 ### Manual
 
